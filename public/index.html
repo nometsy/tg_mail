@@ -25,7 +25,7 @@
             user-select: none;
         }
 
-        /* 1. Countdown Timer */
+        /* Полоска таймера сессии */
         .session-timer {
             position: fixed;
             top: 0;
@@ -86,10 +86,9 @@
         }
 
         button:active { transform: scale(0.96); opacity: 0.7; }
-
         .btn-reset { border-color: var(--accent-pink); color: var(--accent-pink); }
 
-        /* 2. Skeleton Loader */
+        /* Анимация загрузки (Skeleton) */
         .skeleton-loader { display: none; }
         .skeleton-item {
             height: 70px;
@@ -179,7 +178,6 @@
     let timeLeft = 600; 
     let lastCount = 0;
 
-    // 1. Таймер сессии
     function startTimer() {
         const fill = document.getElementById('progress-fill');
         const timer = setInterval(() => {
@@ -193,7 +191,6 @@
         }, 1000);
     }
 
-    // 2. Звуковое уведомление
     function notify() {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = ctx.createOscillator();
@@ -208,7 +205,6 @@
         tg.HapticFeedback.notificationOccurred('success');
     }
 
-    // 3. Логика API
     async function init() {
         if (!userId) {
             document.getElementById('addr').innerText = "ERROR: USE TELEGRAM";
@@ -229,7 +225,6 @@
         const loader = document.getElementById('loader');
         const inbox = document.getElementById('inbox');
         const sync = document.getElementById('sync-time');
-
         loader.style.display = 'block';
         
         try {
@@ -239,7 +234,6 @@
                 body: JSON.stringify({ userId })
             });
             const data = await res.json();
-            
             sync.innerText = `SYNCED AT [${new Date().toLocaleTimeString()}]`;
 
             if (data.length > 0) {
@@ -258,13 +252,20 @@
         }
     }
 
+    // ИСПРАВЛЕННАЯ ФУНКЦИЯ КОПИРОВАНИЯ
     function copyAddr() {
         const text = document.getElementById('addr').innerText;
-        navigator.clipboard.writeText(text);
-        tg.HapticFeedback.impactOccurred('medium');
-        // Эффект подтверждения через стандартный тост Telegram
-        tg.showScanQrPopup({ text: "ADDRESS_COPIED" }); 
-        setTimeout(() => tg.closeScanQrPopup(), 800);
+        
+        // Копирование в буфер обмена
+        navigator.clipboard.writeText(text).then(() => {
+            // Виброотклик
+            tg.HapticFeedback.impactOccurred('medium');
+            
+            // Простое уведомление Telegram вместо сканера QR
+            tg.showAlert("Адрес скопирован!");
+        }).catch(err => {
+            console.error('Ошибка копирования: ', err);
+        });
     }
 
     async function resetAddr() {
@@ -277,7 +278,6 @@
         location.reload();
     }
 
-    // Старт
     window.onload = () => {
         startTimer();
         init();
