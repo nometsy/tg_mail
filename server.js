@@ -9,19 +9,16 @@ const PORT = process.env.PORT || 3000;
 const API_URL = 'https://api.mail.tm';
 const WEB_APP_URL = 'https://tg-mail-fn55.onrender.com';
 
-// Isolated In-Memory Storage
 const sessions = {}; 
 
 app.use(express.json());
 app.use(express.static('public'));
 
-// --- API LAYER (WEB APP INTERFACE) ---
+// --- API LAYER ---
 
 app.post('/api/init', async (req, res) => {
     const { userId } = req.body;
     if (!userId) return res.status(400).send('Unauthorized');
-    
-    // Возврат существующей сессии для конкретного User ID
     if (sessions[userId]) return res.json(sessions[userId]);
 
     try {
@@ -37,7 +34,7 @@ app.post('/api/init', async (req, res) => {
         sessions[userId] = { address, token: tokenRes.data.token };
         res.json(sessions[userId]);
     } catch (e) {
-        res.status(500).json({ error: 'MailAPI unreachable' });
+        res.status(500).json({ error: 'MailAPI Error' });
     }
 });
 
@@ -45,14 +42,31 @@ app.post('/api/check', async (req, res) => {
     const { userId } = req.body;
     const user = sessions[userId];
     if (!user) return res.json([]);
-
     try {
         const msgs = await axios.get(`${API_URL}/messages`, {
             headers: { Authorization: `Bearer ${user.token}` }
         });
         res.json(msgs.data['hydra:member']);
+    } catch (e) { res.status(500).json([]); }
+});
+
+// Новый эндпоинт для чтения конкретного письма
+app.post('/api/message', async (req, res) => {
+    const { userId, msgId } = req.body;
+    const user = sessions[userId];
+    if (!user) return res.status(401).send('Unauthorized');
+
+    try {
+        const response = await axios.get(`${API_URL}/messages/${msgId}`, {
+            headers: { Authorization: `Bearer ${user.token}` }
+        });
+        res.json({
+            text: response.data.text || response.data.html,
+            from: response.data.from.address,
+            subject: response.data.subject
+        });
     } catch (e) {
-        res.status(500).json([]);
+        res.status(500).json({ error: 'Read Error' });
     }
 });
 
@@ -62,18 +76,16 @@ app.post('/api/reset', (req, res) => {
     res.sendStatus(200);
 });
 
-// --- BOT LAYER (TELEGRAM UI) ---
+// --- BOT LAYER ---
 
 bot.command('start', async (ctx) => {
     try {
-        // Уменьшенная кнопка меню
         await ctx.setChatMenuButton({
             type: 'web_app',
             text: '📧 Почта',
             web_app: { url: WEB_APP_URL }
         });
 
-        // Парадное приветствие с обновленной кнопкой
         await ctx.replyWithPhoto(
             'https://cdn-icons-png.flaticon.com/512/9664/9664634.png',
             {
@@ -89,16 +101,9 @@ bot.command('start', async (ctx) => {
                 ])
             }
         );
-    } catch (e) {
-        console.error('Bot Start Error:', e.message);
-    }
+    } catch (e) { console.error(e); }
 });
 
-// --- RUNTIME ---
-
 bot.launch();
-app.listen(PORT, () => console.log(`Server performance optimized on port ${PORT}`));
-
-process.once('SIGINT', () => bot.stop('SIGINT'));
-process.once('SIGTERM', () => bot.stop('SIGTERM'));
+app.listen(PORT, () => console.log(`Server live on ${PORT}`));
 
