@@ -9,21 +9,20 @@ const PORT = process.env.PORT || 3000;
 const API_URL = 'https://api.mail.tm';
 const WEB_APP_URL = 'https://tg-mail-fn55.onrender.com';
 
-// Временное хранилище в памяти сервера
+// Isolated In-Memory Storage
 const sessions = {}; 
 
 app.use(express.json());
 app.use(express.static('public'));
 
-// Создание или получение почты для конкретного userId
+// --- API LAYER (WEB APP INTERFACE) ---
+
 app.post('/api/init', async (req, res) => {
     const { userId } = req.body;
-    if (!userId) return res.status(400).send('No ID');
-
-    // Если у пользователя уже есть активная почта в памяти — отдаем её
-    if (sessions[userId]) {
-        return res.json(sessions[userId]);
-    }
+    if (!userId) return res.status(400).send('Unauthorized');
+    
+    // Возврат существующей сессии для конкретного User ID
+    if (sessions[userId]) return res.json(sessions[userId]);
 
     try {
         const domains = await axios.get(`${API_URL}/domains`);
@@ -38,11 +37,10 @@ app.post('/api/init', async (req, res) => {
         sessions[userId] = { address, token: tokenRes.data.token };
         res.json(sessions[userId]);
     } catch (e) {
-        res.status(500).json({ error: 'API Error' });
+        res.status(500).json({ error: 'MailAPI unreachable' });
     }
 });
 
-// Проверка почты только для владельца userId
 app.post('/api/check', async (req, res) => {
     const { userId } = req.body;
     const user = sessions[userId];
@@ -58,24 +56,49 @@ app.post('/api/check', async (req, res) => {
     }
 });
 
-// Сброс почты (RESET)
 app.post('/api/reset', (req, res) => {
     const { userId } = req.body;
     delete sessions[userId];
     res.sendStatus(200);
 });
 
+// --- BOT LAYER (TELEGRAM UI) ---
+
 bot.command('start', async (ctx) => {
-    await ctx.setChatMenuButton({
-        type: 'web_app',
-        text: '📧 Открыть Почту',
-        web_app: { url: WEB_APP_URL }
-    });
-    await ctx.reply('<b>Система готова.</b>\nИспользуй кнопку меню для входа.', { 
-        parse_mode: 'HTML',
-        ...Markup.inlineKeyboard([Markup.button.webApp('🚀 ЗАПУСТИТЬ', WEB_APP_URL)])
-    });
+    try {
+        // Уменьшенная кнопка меню
+        await ctx.setChatMenuButton({
+            type: 'web_app',
+            text: '📧 Почта',
+            web_app: { url: WEB_APP_URL }
+        });
+
+        // Парадное приветствие с обновленной кнопкой
+        await ctx.replyWithPhoto(
+            'https://cdn-icons-png.flaticon.com/512/9664/9664634.png',
+            {
+                caption: '<b>Добро пожаловать!</b>\n\n' +
+                         '📨 Генерация временного адреса\n' +
+                         '⚡ Мгновенный приём писем\n' +
+                         '🔐 Без хранения данных\n' +
+                         '🕶 Полная анонимность\n\n' +
+                         'Нажми кнопку ниже, чтобы начать:',
+                parse_mode: 'HTML',
+                ...Markup.inlineKeyboard([
+                    Markup.button.webApp('Получить email 📧', WEB_APP_URL)
+                ])
+            }
+        );
+    } catch (e) {
+        console.error('Bot Start Error:', e.message);
+    }
 });
 
+// --- RUNTIME ---
+
 bot.launch();
-app.listen(PORT, () => console.log(`Server live on ${PORT}`));
+app.listen(PORT, () => console.log(`Server performance optimized on port ${PORT}`));
+
+process.once('SIGINT', () => bot.stop('SIGINT'));
+process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
