@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --cp-bg: #050505;
+            --cp-card: #0a0a0e;
+            --cp-cyan: #00fff9;
+            --cp-pink: #ff00ff;
+            --cp-text: #e0e0e0;
+            --cp-dim: #506070;
+            
+            --tg-theme-bg-color: var(--cp-bg) !important;
+            --tg-theme-secondary-bg-color: var(--cp-card) !important;
+            --tg-theme-text-color: var(--cp-text) !important;
+            --tg-theme-hint-color: var(--cp-dim) !important;
+        }
+
+        body {
+            background-color: var(--cp-bg);
+            color: var(--cp-text);
+            font-family: 'Share Tech Mono', monospace;
+            margin: 0; padding: 0; overflow-x: hidden;
+            background-image: 
+                linear-gradient(rgba(0, 255, 249, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 249, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        body::after {
+            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 3px);
+            pointer-events: none; z-index: 999;
+        }
+
+        /* --- ГЛАВНАЯ КАРТОЧКА --- */
+        .hero {
+            padding: 25px 20px;
+            background: var(--cp-card);
+            border-radius: 0px; 
+            border-bottom: 2px solid var(--cp-cyan);
+            box-shadow: 0 5px 15px rgba(0, 255, 249, 0.2);
+            text-align: center;
+            position: relative; z-index: 2;
+        }
+
+        .label { 
+            font-size: 14px; color: var(--cp-cyan); 
+            text-transform: uppercase; letter-spacing: 3px; 
+            margin-bottom: 10px; text-shadow: 0 0 5px var(--cp-cyan);
+        }
+        
+        .email-container {
+            margin: 15px 0;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(0, 255, 249, 0.3);
+            padding: 15px;
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 95% 100%, 0 100%);
+            position: relative;
+        }
+        
+        .email { 
+            font-size: 22px; color: #fff; word-break: break-all; 
+            text-shadow: 0 0 8px var(--cp-cyan);
+        }
+
+        /* Кнопки */
+        .actions { display: flex; gap: 10px; margin-top: 20px; }
+        
+        .btn {
+            flex: 1; padding: 12px; border-radius: 0px;
+            font-size: 16px; font-family: 'Share Tech Mono', monospace;
+            text-transform: uppercase; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: all 0.2s; border: 1px solid transparent;
+        }
+        
+        .btn-copy { 
+            background: rgba(0, 255, 249, 0.1); color: var(--cp-cyan); border-color: var(--cp-cyan);
+            box-shadow: inset 0 0 10px rgba(0, 255, 249, 0.2);
+        }
+        .btn-copy:active { background: var(--cp-cyan); color: #000; box-shadow: 0 0 20px var(--cp-cyan); }
+        
+        .btn-reset { 
+            background: rgba(255, 0, 255, 0.1); color: var(--cp-pink); border-color: var(--cp-pink);
+        }
+        .btn-reset:active { background: var(--cp-pink); color: #000; box-shadow: 0 0 20px var(--cp-pink); }
+
+        /* --- СПИСОК --- */
+        .list-header {
+            padding: 25px 20px 15px 20px; font-size: 18px;
+            text-transform: uppercase; letter-spacing: 2px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .list-header span:first-child { border-left: 4px solid var(--cp-cyan); padding-left: 10px; }
+        .status { font-size: 12px; color: var(--cp-dim); }
+
+        .msg-list { padding: 0 15px 80px 15px; }
+        
+        .msg-card {
+            background: rgba(10, 10, 14, 0.8);
+            border: 1px solid rgba(0, 255, 249, 0.2);
+            padding: 15px; border-radius: 0px; margin-bottom: 10px;
+            position: relative; transition: all 0.2s;
+        }
+        .msg-card:active { 
+            background: rgba(0, 255, 249, 0.1); border-color: var(--cp-cyan);
+            box-shadow: 0 0 10px rgba(0, 255, 249, 0.3);
+        }
+        .msg-card::after {
+             content: ''; position: absolute; bottom: 0; right: 0; width: 0; height: 0;
+             border-style: solid; border-width: 0 0 15px 15px;
+             border-color: transparent transparent var(--cp-cyan) transparent; opacity: 0.5;
+        }
+        
+        .msg-from { font-weight: bold; font-size: 16px; color: var(--cp-cyan); margin-bottom: 4px; }
+        .msg-sub { font-size: 14px; color: var(--cp-text); }
+        .msg-time { position: absolute; top: 15px; right: 15px; font-size: 12px; color: var(--cp-dim); font-family: monospace; }
+
+        /* --- ЭКРАН ЧТЕНИЯ --- */
+        #readView {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--cp-bg); z-index: 100;
+            transform: translateX(110%); transition: transform 0.3s cubic-bezier(0.45, 0, 0.55, 1);
+            display: flex; flex-direction: column;
+            background-image: linear-gradient(rgba(0, 255, 249, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 249, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+        #readView.active { transform: translateX(0); }
+
+        .read-header {
+            padding: 15px; background: var(--cp-card);
+            border-bottom: 2px solid var(--cp-cyan);
+            display: flex; align-items: center; gap: 15px;
+            box-shadow: 0 5px 15px rgba(0, 255, 249, 0.1);
+        }
+        .back-btn { background: none; border: 1px solid var(--cp-cyan); color: var(--cp-cyan); padding: 5px 15px; cursor: pointer; font-family: 'Share Tech Mono'; font-size: 18px; }
+        .read-title { text-transform: uppercase; letter-spacing: 2px; color: var(--cp-cyan); }
+        
+        .read-content { padding: 20px; overflow-y: auto; flex: 1; line-height: 1.6; }
+        .read-meta { margin-bottom: 20px; padding: 15px; border: 1px solid rgba(0, 255, 249, 0.3); background: rgba(0,255,249,0.05); }
+        .meta-from { font-size: 16px; color: var(--cp-cyan); margin-bottom: 5px; }
+        .meta-sub { color: var(--cp-text); font-size: 14px; }
+        
+        svg { width: 20px; height: 20px; fill: currentColor; }
+        
+        .skeleton { 
+            background: repeating-linear-gradient(90deg, rgba(0,255,249,0.1), rgba(0,255,249,0.1) 10px, rgba(0,255,249,0.2) 10px, rgba(0,255,249,0.2) 20px);
+            animation: cyber-glitch 1s infinite linear alternate; color: transparent!important;
+        }
+        @keyframes cyber-glitch { 0% { opacity: 0.5; } 100% { opacity: 1; } }
+    </style>
+</head>
+<body>
+    <div id="mainView">
+        <div class="hero">
+            <div class="label">>> SYSTEM.MAIL.TEMP_ADDR <<</div>
+            <div class="email-container">
+                <div id="emailBox" class="email"><span class="skeleton">INITIALIZING...</span></div>
+            </div>
+            <div class="actions">
+                <button class="btn btn-copy" onclick="copyEmail()">
+                    <svg viewBox="0 0 24 24"><path d="M16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5ZM19 21H8V7H19V21Z"/></svg>
+                    COPY
+                </button>
+                <button class="btn btn-reset" onclick="resetEmail()">
+                    <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4C7.58 4 4.01 7.58 4.01 12C4.01 16.42 7.58 20 12 20C15.73 20 18.84 17.45 19.73 14H21.78C20.83 18.54 16.85 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2C14.81 2 17.33 3.17 19.07 5L22 2V9H15L17.65 6.35Z"/></svg>
+                    RESET
+                </button>
+            </div>
+        </div>
+
+        <div class="list-header">
+            <span>>> INBOX_STREAM</span>
+            <span id="status" class="status">STANDBY...</span>
+        </div>
+
+        <div id="msgList" class="msg-list"></div>
+    </div>
+
+    <div id="readView">
+        <div class="read-header">
+            <button class="back-btn" onclick="closeMessage()">&lt; BACK</button>
+            <div class="read-title">>> MESSAGE.VIEW</div>
+        </div>
+        <div class="read-content">
+            <div class="read-meta">
+                <div id="readFrom" class="meta-from"></div>
+                <div id="readSubject" class="meta-sub"></div>
+            </div>
+            <div id="readBody"></div>
+        </div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.setHeaderColor('#050505');
+
+        let token = localStorage.getItem('mail_token');
+
+        async function init() {
+            const email = localStorage.getItem('mail_addr');
+            if (email && token) {
+                showEmail(email);
+                startPolling();
+            } else {
+                await createAccount();
+            }
+        }
+
+        async function createAccount() {
+            document.getElementById('emailBox').innerHTML = '<span class="skeleton">INITIALIZING...</span>';
+            try {
+                const res = await fetch('/api/create');
+                const data = await res.json();
+                localStorage.setItem('mail_addr', data.address);
+                localStorage.setItem('mail_token', data.token);
+                token = data.token;
+                showEmail(data.address);
+                startPolling();
+            } catch(e) { 
+                document.getElementById('emailBox').innerText = 'NET_ERROR'; 
+            }
+        }
+
+        function showEmail(addr) { 
+            document.getElementById('emailBox').innerText = addr; 
+        }
+
+        function startPolling() {
+            check();
+            setInterval(check, 7000);
+        }
+
+        async function check() {
+            const statusEl = document.getElementById('status');
+            try {
+                statusEl.innerText = 'SYNCING...';
+                const res = await fetch('/api/check', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ token })
+                });
+                const list = await res.json();
+                render(list);
+                
+                const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+                statusEl.innerText = `SYNCED AT [${time}]`;
+            } catch(e) {}
+        }
+
+        function render(list) {
+            const cont = document.getElementById('msgList');
+            cont.innerHTML = '';
+            
+            if (!list || list.length === 0) {
+                cont.innerHTML = '<div style="text-align:center; opacity:0.4; margin-top:40px; letter-spacing:2px;">[ NO_DATA_RECEIVED ]</div>';
+                return;
+            }
+
+            list.forEach(m => {
+                const div = document.createElement('div');
+                div.className = 'msg-card';
+                const date = new Date(m.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                div.innerHTML = `
+                    <div class="msg-time">[${date}]</div>
+                    <div class="msg-from">${m.from.name || m.from.address}</div>
+                    <div class="msg-sub">${m.subject || 'No subject'}</div>
+                `;
+                div.onclick = () => openMessage(m.id, m);
+                cont.appendChild(div);
+            });
+        }
+
+        async function openMessage(id, meta) {
+            const view = document.getElementById('readView');
+            view.classList.add('active');
+            tg.BackButton.show();
+            
+            document.getElementById('readFrom').innerText = 'FROM: ' + meta.from.address;
+            document.getElementById('readSubject').innerText = 'SUBJ: ' + meta.subject;
+            document.getElementById('readBody').innerHTML = '<div class="skeleton" style="height:20px; width:80%"></div><br><div class="skeleton" style="height:20px; width:60%"></div>';
+
+            try {
+                const res = await fetch('/api/read', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ token, id })
+                });
+                const data = await res.json();
+                document.getElementById('readBody').innerHTML = data.html ? data.html[0] : data.text;
+            } catch(e) {
+                document.getElementById('readBody').innerText = 'DATA_CORRUPTED';
+            }
+
+            tg.BackButton.onClick(() => closeMessage());
+        }
+
+        function closeMessage() {
+            document.getElementById('readView').classList.remove('active');
+            tg.BackButton.hide();
+            tg.BackButton.offClick();
+        }
+
+        function copyEmail() {
+            const txt = document.getElementById('emailBox').innerText;
+            navigator.clipboard.writeText(txt);
+            tg.HapticFeedback.notificationOccurred('success');
+        }
+
+        function resetEmail() {
+            tg.showConfirm('EXECUTE RESET PROTOCOL?', (ok) => {
+                if(ok) {
+                    localStorage.clear();
+                    location.reload();
+                }
+            });
+        }
+
+        init();
+    </script>
+</body>
+</html>
+
