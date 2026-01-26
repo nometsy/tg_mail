@@ -9,13 +9,15 @@ const PORT = process.env.PORT || 3000;
 const API_URL = 'https://api.mail.tm';
 const WEB_APP_URL = 'https://tg-mail-fn55.onrender.com';
 
+// Изолированное хранилище сессий (User ID -> Account Data)
 const sessions = {}; 
 
 app.use(express.json());
 app.use(express.static('public'));
 
-// --- API LAYER ---
+// --- API ЭНДПОИНТЫ ---
 
+// Инициализация/получение адреса для конкретного пользователя
 app.post('/api/init', async (req, res) => {
     const { userId } = req.body;
     if (!userId) return res.status(400).send('Unauthorized');
@@ -38,6 +40,7 @@ app.post('/api/init', async (req, res) => {
     }
 });
 
+// Проверка списка писем
 app.post('/api/check', async (req, res) => {
     const { userId } = req.body;
     const user = sessions[userId];
@@ -50,7 +53,7 @@ app.post('/api/check', async (req, res) => {
     } catch (e) { res.status(500).json([]); }
 });
 
-// Новый эндпоинт для чтения конкретного письма
+// Получение содержимого конкретного письма
 app.post('/api/message', async (req, res) => {
     const { userId, msgId } = req.body;
     const user = sessions[userId];
@@ -70,13 +73,14 @@ app.post('/api/message', async (req, res) => {
     }
 });
 
+// Сброс (удаление сессии)
 app.post('/api/reset', (req, res) => {
     const { userId } = req.body;
     delete sessions[userId];
     res.sendStatus(200);
 });
 
-// --- BOT LAYER ---
+// --- ЛОГИКА БОТА ---
 
 bot.command('start', async (ctx) => {
     try {
