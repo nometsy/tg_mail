@@ -7,35 +7,31 @@ const app = express();
 const bot = new Telegraf(process.env.BOT_TOKEN);
 const PORT = process.env.PORT || 3000;
 const API_URL = 'https://api.mail.tm';
+const WEB_APP_URL = 'https://tg-mail-fn55.onrender.com';
 
 app.use(express.json());
 app.use(express.static('public'));
 
-// --- 1. API: СОЗДАНИЕ ПОЧТЫ ---
+// --- 1. API: MAIL.TM INTERFACE ---
 app.get('/api/create', async (req, res) => {
     try {
         const domains = await axios.get(`${API_URL}/domains`);
         const domain = domains.data['hydra:member'][0].domain;
-        
         const rnd = Math.random().toString(36).substring(7);
         const address = `user${rnd}@${domain}`;
         const password = `pass${rnd}`;
 
         await axios.post(`${API_URL}/accounts`, { address, password });
         const tokenRes = await axios.post(`${API_URL}/token`, { address, password });
-        
         res.json({ address, token: tokenRes.data.token });
     } catch (e) {
-        console.error('Create Error:', e.message);
-        res.status(500).json({ error: 'Create error' });
+        res.status(500).json({ error: 'Mail.tm API Error' });
     }
 });
 
-// --- 2. API: СПИСОК ПИСЕМ ---
 app.post('/api/check', async (req, res) => {
     const { token } = req.body;
     if (!token) return res.status(401).json([]);
-
     try {
         const msgs = await axios.get(`${API_URL}/messages`, {
             headers: { Authorization: `Bearer ${token}` }
@@ -46,11 +42,8 @@ app.post('/api/check', async (req, res) => {
     }
 });
 
-// --- 3. API: ЧТЕНИЕ ПИСЬМА ---
 app.post('/api/read', async (req, res) => {
     const { token, id } = req.body;
-    if (!token || !id) return res.status(400).json({ error: 'No data' });
-
     try {
         const msg = await axios.get(`${API_URL}/messages/${id}`, {
             headers: { Authorization: `Bearer ${token}` }
@@ -61,43 +54,40 @@ app.post('/api/read', async (req, res) => {
     }
 });
 
-// --- БОТ: СТАРТ ---
+// --- 2. BOT LOGIC ---
 bot.command('start', async (ctx) => {
-    // 1. Кнопка меню
     try {
+        // Установка кнопки меню (Web App)
         await ctx.setChatMenuButton({
             type: 'web_app',
             text: '📧 Открыть Почту',
-            web_app: { url: process.env.APP_URL }
+            web_app: { url: WEB_APP_URL }
         });
     } catch (e) {
-        console.log('Menu Error');
+        console.error('Menu Button Error:', e.message);
     }
 
-    // 2. Красивое сообщение
     await ctx.replyWithPhoto(
-        // Ссылка на картинку (можешь заменить на свою)
-        'https://cdn-icons-png.flaticon.com/512/9664/9664634.png', 
+        'https://cdn-icons-png.flaticon.com/512/9664/9664634.png',
         {
-            caption: `<b>Добро пожаловать!</b>
-
-📨 Генерация временного адреса
-⚡ Мгновенный приём писем
-🔐 Без хранения данных
-🕶 Полная анонимность
-
-Нажми кнопку ниже, чтобы начать:`,
+            caption: '<b>Добро пожаловать!</b>\n\n' +
+                     '📨 Генерация временного адреса\n' +
+                     '⚡ Мгновенный приём писем\n' +
+                     '🔐 Без хранения данных\n' +
+                     '🕶 Полная анонимность\n\n' +
+                     'Нажми кнопку ниже, чтобы начать:',
             parse_mode: 'HTML',
             ...Markup.inlineKeyboard([
-                Markup.button.webApp('🚀 ЗАПУСТИТЬ СИСТЕМУ', process.env.APP_URL)
+                Markup.button.webApp('🚀 ЗАПУСТИТЬ СИСТЕМУ', WEB_APP_URL)
             ])
         }
     );
 });
 
-// --- ЗАПУСК ---
+// --- 3. LIFECYCLE ---
 bot.launch();
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 process.once('SIGINT', () => bot.stop('SIGINT'));
 process.once('SIGTERM', () => bot.stop('SIGTERM'));
+
