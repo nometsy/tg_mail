@@ -3,27 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Почтовый верстак</title>
+    <title>MINE MAIL // Почтовый рейд</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
     <style>
         :root {
-            --sky-top: #73c8ff;
-            --sky-bottom: #d6f2ff;
-            --grass-1: #5aa042;
-            --grass-2: #3f7d2a;
-            --dirt-1: #8a5932;
-            --dirt-2: #6b4124;
-            --panel: #2d2d2d;
-            --panel-dark: #1f1f1f;
-            --stone: #b0b0b0;
-            --text: #f2f2f2;
-            --text-soft: #b9b9b9;
-            --accent: #ffd54d;
-            --danger: #ff6b57;
-            --ok: #5eff7e;
+            --sky-1: #70c4ff;
+            --sky-2: #bfe7ff;
+            --grass-a: #61ad45;
+            --grass-b: #3c7f2c;
+            --stone-a: #4f4f4f;
+            --stone-b: #2d2d2d;
+            --panel: #202020;
+            --panel-2: #151515;
+            --pixel-border: #0c0c0c;
+            --text: #f3f3f3;
+            --text-soft: #b6b6b6;
+            --gold: #ffd24a;
+            --emerald: #4eff77;
+            --redstone: #ff5f5f;
+            --diamond: #6de2ff;
+            --paper: #ede4c8;
+            --paper-text: #2d2d2d;
         }
 
         * { box-sizing: border-box; }
@@ -33,241 +36,352 @@
             min-height: 100vh;
             color: var(--text);
             font-family: 'VT323', monospace;
-            font-size: 24px;
+            font-size: 26px;
+            line-height: 1.15;
             background:
-                linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 50%, var(--grass-1) 50%, var(--grass-2) 60%, var(--dirt-1) 60%, var(--dirt-2) 100%);
-            padding: 16px 12px 24px;
+                radial-gradient(circle at 15% 10%, rgba(255, 255, 255, 0.45) 0 7%, transparent 8%),
+                radial-gradient(circle at 78% 20%, rgba(255, 255, 255, 0.35) 0 6%, transparent 7%),
+                linear-gradient(180deg, var(--sky-1) 0%, var(--sky-2) 42%, var(--grass-a) 42%, var(--grass-b) 55%, #7a4f2f 55%, #5f3922 100%);
+            padding: 14px 10px 24px;
         }
 
-        .shell {
-            width: min(980px, 100%);
+        .cloud {
+            position: fixed;
+            top: 32px;
+            width: 130px;
+            height: 34px;
+            background: rgba(255, 255, 255, 0.88);
+            box-shadow: 36px 0 0 rgba(255, 255, 255, 0.88), 18px -16px 0 rgba(255, 255, 255, 0.92);
+            opacity: 0.7;
+            z-index: 0;
+            animation: drift 26s linear infinite;
+        }
+
+        .cloud.c2 { top: 96px; animation-duration: 35s; animation-delay: -12s; opacity: 0.5; }
+        .cloud.c3 { top: 152px; animation-duration: 42s; animation-delay: -7s; opacity: 0.4; }
+
+        @keyframes drift {
+            from { transform: translateX(-220px); }
+            to { transform: translateX(calc(100vw + 250px)); }
+        }
+
+        .app {
+            position: relative;
+            z-index: 2;
+            width: min(1020px, 100%);
             margin: 0 auto;
-            background: linear-gradient(180deg, #3a3a3a 0%, #232323 100%);
-            border: 4px solid #111;
-            box-shadow: 0 0 0 4px #5a5a5a inset, 0 10px 24px rgba(0, 0, 0, 0.4);
-            padding: 14px;
+            border: 4px solid var(--pixel-border);
+            box-shadow: 0 0 0 4px #696969 inset, 0 12px 28px rgba(0, 0, 0, 0.38);
+            background: linear-gradient(180deg, var(--stone-a), var(--stone-b));
+            padding: 12px;
+        }
+
+        .title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
         }
 
         .title {
+            margin: 0;
             font-family: 'Press Start 2P', monospace;
             font-size: 14px;
-            line-height: 1.5;
-            color: var(--accent);
-            margin: 0 0 12px;
+            line-height: 1.35;
+            color: var(--gold);
             text-shadow: 2px 2px 0 #000;
         }
 
-        .timer-wrap {
-            margin-bottom: 12px;
-            border: 3px solid #111;
-            background: #202020;
-            height: 16px;
+        .badge {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 9px;
+            color: #111;
+            background: var(--emerald);
+            border: 3px solid #0d3d16;
+            padding: 8px;
+        }
+
+        .hud {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .panel {
+            background: linear-gradient(180deg, #212121 0%, #141414 100%);
+            border: 3px solid var(--pixel-border);
+            box-shadow: 0 0 0 3px #555 inset;
+            padding: 8px;
+        }
+
+        .bar-wrap {
+            border: 2px solid #0f0f0f;
+            background: #111;
+            height: 18px;
+            margin-bottom: 6px;
         }
 
         #timer-fill {
-            height: 100%;
             width: 100%;
-            background: repeating-linear-gradient(90deg, #64d649 0 12px, #56b53e 12px 24px);
+            height: 100%;
+            background: repeating-linear-gradient(90deg, #65d94b 0 12px, #56bc41 12px 24px);
             transition: width 1s linear;
         }
 
-        .status-line {
+        .hud-line {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             gap: 8px;
-            margin-bottom: 12px;
             color: var(--text-soft);
-            font-size: 21px;
+            font-size: 22px;
             flex-wrap: wrap;
         }
 
-        .address-box {
-            padding: 10px;
-            background: #111;
-            border: 3px solid #000;
-            box-shadow: 0 0 0 3px #5d5d5d inset;
-            color: var(--ok);
-            word-break: break-all;
-            margin-bottom: 12px;
+        .hud-big {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 10px;
+            line-height: 1.35;
+            color: #d6d6d6;
         }
 
-        .buttons {
+        .addr {
+            border: 3px solid #060606;
+            background: #101010;
+            box-shadow: 0 0 0 3px #4d4d4d inset;
+            color: var(--emerald);
+            font-size: 28px;
+            word-break: break-all;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .control-grid {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 8px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         button {
-            border: 3px solid #000;
-            background: linear-gradient(180deg, #6b6b6b 0%, #4c4c4c 100%);
+            border: 3px solid #0a0a0a;
+            box-shadow: 0 4px 0 #111;
+            background: linear-gradient(180deg, #6f6f6f 0%, #4e4e4e 100%);
             color: #fff;
             font-family: 'Press Start 2P', monospace;
             font-size: 10px;
-            padding: 10px 6px;
+            line-height: 1.4;
             text-transform: uppercase;
+            padding: 11px 8px;
             cursor: pointer;
-            box-shadow: 0 3px 0 #1a1a1a;
         }
 
-        button:active {
-            transform: translateY(2px);
-            box-shadow: 0 1px 0 #1a1a1a;
-        }
-
-        .btn-danger { background: linear-gradient(180deg, #c35a4d 0%, #8e3d33 100%); }
-        .btn-accent { background: linear-gradient(180deg, #d6b450 0%, #9a7a2b 100%); }
+        button:active { transform: translateY(2px); box-shadow: 0 2px 0 #111; }
+        .btn-rotate { background: linear-gradient(180deg, #d3ba57 0%, #9a7d2e 100%); }
+        .btn-reset { background: linear-gradient(180deg, #c96556 0%, #943f34 100%); }
+        .btn-close { background: linear-gradient(180deg, #7f7f7f 0%, #5d5d5d 100%); }
 
         .stats {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: 8px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .stat {
-            border: 3px solid #111;
-            background: linear-gradient(180deg, #2d2d2d 0%, #1f1f1f 100%);
+            border: 3px solid #0b0b0b;
+            background: linear-gradient(180deg, #2a2a2a 0%, #1b1b1b 100%);
             padding: 8px;
+            min-height: 90px;
         }
 
         .stat-label {
             font-family: 'Press Start 2P', monospace;
-            font-size: 9px;
-            line-height: 1.4;
+            font-size: 8px;
+            line-height: 1.5;
             color: var(--text-soft);
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
 
-        .stat-value {
-            font-size: 34px;
-            color: var(--accent);
-        }
+        .stat-value { font-size: 36px; color: var(--gold); }
 
         .section-title {
+            margin: 0 0 8px;
             font-family: 'Press Start 2P', monospace;
             font-size: 10px;
-            margin: 0 0 8px;
             color: #fff;
         }
 
         .inbox {
-            border: 3px solid #111;
-            background: #171717;
-            min-height: 140px;
-            max-height: 40vh;
-            overflow-y: auto;
+            border: 3px solid #070707;
+            background: #121212;
+            box-shadow: 0 0 0 3px #313131 inset;
+            min-height: 180px;
+            max-height: 42vh;
+            overflow: auto;
             padding: 8px;
+            margin-bottom: 10px;
         }
 
-        .mail {
-            border: 2px solid #000;
-            background: linear-gradient(180deg, #323232 0%, #242424 100%);
+        .mail-card {
+            border: 2px solid #060606;
+            background: linear-gradient(180deg, #313131 0%, #212121 100%);
+            box-shadow: 0 0 0 2px #4c4c4c inset;
             padding: 8px;
             margin-bottom: 8px;
             cursor: pointer;
+            transition: transform 0.15s ease, filter 0.15s ease;
         }
 
-        .mail:hover { outline: 2px solid #7ac7ff; }
+        .mail-card:hover { transform: translateY(-1px); filter: brightness(1.06); }
 
-        .mail-from {
-            color: #89d4ff;
-            font-size: 20px;
-            word-break: break-word;
+        .mail-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
         }
 
-        .mail-subject {
-            color: #fff;
-            word-break: break-word;
-        }
+        .mail-from { color: var(--diamond); font-size: 22px; word-break: break-word; }
+        .mail-date { color: var(--text-soft); font-size: 20px; }
+        .mail-subject { font-size: 24px; word-break: break-word; }
+        .mail-tip { color: #d2c893; font-size: 21px; }
 
-        .mail-date {
+        .empty {
+            border: 2px dashed #555;
+            padding: 12px;
             color: var(--text-soft);
-            font-size: 20px;
+            text-align: center;
         }
 
-        .empty { color: var(--text-soft); }
+        details.help {
+            border: 3px solid #090909;
+            background: linear-gradient(180deg, #262626 0%, #1b1b1b 100%);
+            box-shadow: 0 0 0 3px #494949 inset;
+            padding: 8px;
+        }
+
+        details.help summary {
+            cursor: pointer;
+            list-style: none;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 10px;
+            color: var(--gold);
+        }
+
+        details.help summary::-webkit-details-marker { display: none; }
+
+        .help-body { margin-top: 8px; color: #e7e7e7; }
+        .help-body p { margin: 0 0 7px; }
 
         #reader {
             position: fixed;
             inset: 0;
+            z-index: 3000;
             display: none;
-            background: rgba(12, 12, 12, 0.98);
-            z-index: 2000;
+            background: rgba(10, 10, 10, 0.95);
             padding: 10px;
         }
 
         .reader-box {
-            width: min(980px, 100%);
+            width: min(1050px, 100%);
             height: 100%;
             margin: 0 auto;
-            border: 4px solid #000;
-            background: #191919;
-            box-shadow: 0 0 0 4px #4f4f4f inset;
+            border: 4px solid #0a0a0a;
+            background: linear-gradient(180deg, #373737 0%, #222 100%);
+            box-shadow: 0 0 0 4px #666 inset;
+            padding: 10px;
             display: flex;
             flex-direction: column;
-            padding: 10px;
             gap: 8px;
         }
 
         .reader-meta {
-            border: 2px solid #000;
-            background: #111;
+            border: 2px solid #0a0a0a;
+            background: #141414;
+            color: #ddd;
             padding: 8px;
-            color: #d3d3d3;
-            font-size: 21px;
+            font-size: 22px;
         }
 
-        .reader-tabs {
-            display: flex;
+        .reader-controls {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 8px;
         }
 
-        .tab.active { outline: 2px solid #7ac7ff; }
+        .tab.active { outline: 2px solid #7acbff; }
 
-        #mail-text {
+        #paper {
             flex: 1;
-            border: 2px solid #000;
-            background: #0f0f0f;
-            color: #f5f5f5;
-            padding: 10px;
-            margin: 0;
+            border: 3px solid #463627;
+            background: repeating-linear-gradient(180deg, #f0e6ca 0 20px, #e8debf 20px 40px);
+            color: var(--paper-text);
+            padding: 12px;
             white-space: pre-wrap;
             overflow: auto;
-            font-size: 23px;
+            font-size: 24px;
+            display: block;
         }
 
-        #mail-html {
+        #html-view {
             flex: 1;
-            border: 2px solid #000;
+            border: 3px solid #111;
             background: #fff;
             width: 100%;
             display: none;
         }
 
-        @media (max-width: 700px) {
-            .buttons { grid-template-columns: 1fr; }
-            .stats { grid-template-columns: 1fr; }
+        @media (max-width: 860px) {
+            .hud { grid-template-columns: 1fr; }
+            .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+
+        @media (max-width: 640px) {
             .title { font-size: 12px; }
+            .control-grid { grid-template-columns: 1fr; }
+            .stats { grid-template-columns: 1fr; }
+            .reader-controls { grid-template-columns: 1fr; }
+            body { font-size: 24px; }
         }
     </style>
 </head>
 <body>
-<div class="shell">
-    <h1 class="title">ПОЧТОВЫЙ ВЕРСТАК // MINE MAIL</h1>
+<div class="cloud"></div>
+<div class="cloud c2"></div>
+<div class="cloud c3"></div>
 
-    <div class="timer-wrap"><div id="timer-fill"></div></div>
-    <div class="status-line">
-        <span id="time-left">До автосмены: 20:00</span>
-        <span id="sync-status">Синхронизация...</span>
+<div class="app">
+    <div class="title-row">
+        <h1 class="title">MINE MAIL // ПОЧТОВЫЙ РЕЙД</h1>
+        <div class="badge">ONLINE</div>
     </div>
 
-    <div id="address" class="address-box">Создание почты...</div>
+    <div class="hud">
+        <div class="panel">
+            <div class="bar-wrap"><div id="timer-fill"></div></div>
+            <div class="hud-line">
+                <span id="time-left">До автосмены: 20:00</span>
+                <span id="sync-status">Статус: синхронизация...</span>
+            </div>
+        </div>
+        <div class="panel hud-big">
+            РЕЖИМ: ВЫЖИВАНИЕ<br>
+            ПЕРИОД ПОЧТЫ: 20 МИН
+        </div>
+    </div>
 
-    <div class="buttons">
-        <button onclick="copyAddress()">Копировать</button>
-        <button class="btn-accent" onclick="manualRotate()">Новая почта</button>
-        <button class="btn-danger" onclick="resetSession()">Сброс</button>
+    <div id="address" class="addr">Создаю временную почту...</div>
+
+    <div class="control-grid">
+        <button onclick="copyAddress()">Копировать адрес</button>
+        <button class="btn-rotate" onclick="manualRotate()">Новая почта</button>
+        <button class="btn-reset" onclick="resetSession()">Сброс сессии</button>
     </div>
 
     <div class="stats">
@@ -280,7 +394,7 @@
             <div id="stat-total-messages" class="stat-value">0</div>
         </div>
         <div class="stat">
-            <div class="stat-label">В текущей почте</div>
+            <div class="stat-label">В текущем ящике</div>
             <div id="stat-current" class="stat-value">0</div>
         </div>
         <div class="stat">
@@ -289,20 +403,31 @@
         </div>
     </div>
 
-    <h2 class="section-title">ВХОДЯЩИЕ</h2>
-    <div id="inbox" class="inbox"><div class="empty">Пока писем нет.</div></div>
+    <h2 class="section-title">ВХОДЯЩИЕ СООБЩЕНИЯ</h2>
+    <div id="inbox" class="inbox"><div class="empty">Писем пока нет. Ожидаем дроп лута...</div></div>
+
+    <details class="help" open>
+        <summary>ИНСТРУКЦИЯ ИГРЫ</summary>
+        <div class="help-body">
+            <p>1. Скопируй адрес и используй его на нужном сайте для получения писем.</p>
+            <p>2. Новые письма автоматически появляются в блоке "Входящие" каждые 15 секунд.</p>
+            <p>3. Нажми на письмо, чтобы открыть красивый режим чтения (Текст/HTML).</p>
+            <p>4. Через 20 минут адрес меняется автоматически. Можно сменить вручную кнопкой "Новая почта".</p>
+            <p>5. Кнопка "Сброс сессии" удаляет текущую сессию и создаёт новую почту сразу.</p>
+        </div>
+    </details>
 </div>
 
 <div id="reader">
     <div class="reader-box">
-        <div id="reader-meta" class="reader-meta">Загрузка письма...</div>
-        <div class="reader-tabs">
+        <div id="reader-meta" class="reader-meta">Открытие письма...</div>
+        <div class="reader-controls">
             <button id="tab-text" class="tab active" onclick="switchView('text')">Текст</button>
             <button id="tab-html" class="tab" onclick="switchView('html')">HTML</button>
-            <button class="btn-danger" onclick="closeReader()">Закрыть</button>
+            <button class="btn-close" onclick="closeReader()">Закрыть</button>
         </div>
-        <pre id="mail-text"></pre>
-        <iframe id="mail-html" sandbox></iframe>
+        <pre id="paper"></pre>
+        <iframe id="html-view" sandbox></iframe>
     </div>
 </div>
 
@@ -322,7 +447,6 @@
 
     let expiresAt = Date.now() + MAIL_LIFETIME_MS;
     let lastMessageCount = 0;
-    let cachedMessages = [];
     let currentMessage = null;
 
     function haptic(type, value) {
@@ -354,11 +478,15 @@
         return response.text();
     }
 
+    function setStatus(text) {
+        document.getElementById('sync-status').textContent = `Статус: ${text}`;
+    }
+
     function formatCountdown(ms) {
         const totalSeconds = Math.max(0, Math.floor(ms / 1000));
-        const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
-        const seconds = (totalSeconds % 60).toString().padStart(2, '0');
-        return `${minutes}:${seconds}`;
+        const min = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+        const sec = (totalSeconds % 60).toString().padStart(2, '0');
+        return `${min}:${sec}`;
     }
 
     function updateTimerView() {
@@ -380,31 +508,12 @@
         const data = await api('/api/rotate', { userId });
         expiresAt = Date.now() + (data.expiresInMs || MAIL_LIFETIME_MS);
         lastMessageCount = 0;
-        cachedMessages = [];
-        renderInbox([]);
         document.getElementById('address').textContent = data.address;
-        document.getElementById('sync-status').textContent = auto ? 'Почта обновлена автоматически' : 'Почта обновлена вручную';
+        renderInbox([]);
+        setStatus(auto ? 'адрес сменён автоматически' : 'адрес сменён вручную');
         haptic('notify', 'success');
         await refreshStats();
-    }
-
-    function renderInbox(messages) {
-        const inbox = document.getElementById('inbox');
-        if (!messages.length) {
-            inbox.innerHTML = '<div class="empty">Пока писем нет.</div>';
-            return;
-        }
-
-        inbox.innerHTML = messages.map((mail) => {
-            const from = mail.from && mail.from.address ? mail.from.address : 'Неизвестный отправитель';
-            const subject = mail.subject || '(без темы)';
-            const date = mail.createdAt ? new Date(mail.createdAt).toLocaleString('ru-RU') : '';
-            return `<div class="mail" onclick="openMessage('${mail.id}')">
-                        <div class="mail-from">${escapeHtml(from)}</div>
-                        <div class="mail-subject">${escapeHtml(subject)}</div>
-                        <div class="mail-date">${escapeHtml(date)}</div>
-                    </div>`;
-        }).join('');
+        await checkInbox();
     }
 
     function escapeHtml(value) {
@@ -416,23 +525,49 @@
             .replace(/'/g, '&#39;');
     }
 
+    function renderInbox(messages) {
+        const inbox = document.getElementById('inbox');
+        if (!messages.length) {
+            inbox.innerHTML = '<div class="empty">Писем пока нет. Ожидаем дроп лута...</div>';
+            return;
+        }
+
+        inbox.innerHTML = messages.map((mail) => {
+            const from = mail.from && mail.from.address ? mail.from.address : 'Неизвестный отправитель';
+            const subject = mail.subject || '(без темы)';
+            const date = mail.createdAt ? new Date(mail.createdAt).toLocaleString('ru-RU') : 'дата неизвестна';
+            return `<div class="mail-card" onclick="openMessage('${mail.id}')">
+                        <div class="mail-top">
+                            <div class="mail-from">${escapeHtml(from)}</div>
+                            <div class="mail-date">${escapeHtml(date)}</div>
+                        </div>
+                        <div class="mail-subject">${escapeHtml(subject)}</div>
+                        <div class="mail-tip">Нажми, чтобы открыть письмо</div>
+                    </div>`;
+        }).join('');
+    }
+
     async function checkInbox() {
         try {
             const list = await api('/api/check', { userId });
-            cachedMessages = Array.isArray(list) ? list : [];
-            renderInbox(cachedMessages);
-            if (cachedMessages.length > lastMessageCount) {
+            const messages = Array.isArray(list) ? list : [];
+            renderInbox(messages);
+
+            if (messages.length > lastMessageCount) {
                 haptic('notify', 'success');
+                setStatus('получено новое письмо');
+            } else {
+                setStatus(`синхронизировано в ${new Date().toLocaleTimeString('ru-RU')}`);
             }
-            lastMessageCount = cachedMessages.length;
-            document.getElementById('sync-status').textContent = `Синхронизировано: ${new Date().toLocaleTimeString('ru-RU')}`;
+
+            lastMessageCount = messages.length;
             await refreshStats();
         } catch (error) {
             if (String(error.message).includes('SESSION_EXPIRED')) {
                 await rotateMailbox(true);
                 return;
             }
-            document.getElementById('sync-status').textContent = 'Ошибка синхронизации';
+            setStatus('ошибка синхронизации');
         }
     }
 
@@ -450,12 +585,13 @@
         try {
             const data = await api('/api/message', { userId, msgId: messageId });
             currentMessage = data;
+
             const date = data.date ? new Date(data.date).toLocaleString('ru-RU') : 'дата неизвестна';
             document.getElementById('reader-meta').textContent = `От: ${data.from || 'неизвестно'} | Тема: ${data.subject || '(без темы)'} | ${date}`;
-            document.getElementById('mail-text').textContent = data.textPlain || data.text || 'Текст письма отсутствует';
+            document.getElementById('paper').textContent = data.textPlain || data.text || 'Текст письма отсутствует';
 
-            const htmlFrame = document.getElementById('mail-html');
-            htmlFrame.srcdoc = data.html || '<p style="font-family: sans-serif; padding: 12px;">HTML-версия отсутствует.</p>';
+            const htmlFrame = document.getElementById('html-view');
+            htmlFrame.srcdoc = data.html || '<p style="font-family:sans-serif;padding:12px;">HTML-версия отсутствует.</p>';
 
             document.getElementById('reader').style.display = 'block';
             switchView('text');
@@ -464,26 +600,28 @@
         } catch (error) {
             if (String(error.message).includes('SESSION_EXPIRED')) {
                 await rotateMailbox(true);
+                return;
             }
+            setStatus('ошибка открытия письма');
         }
     }
 
     function switchView(mode) {
-        const textEl = document.getElementById('mail-text');
-        const htmlEl = document.getElementById('mail-html');
+        const paper = document.getElementById('paper');
+        const html = document.getElementById('html-view');
         const textTab = document.getElementById('tab-text');
         const htmlTab = document.getElementById('tab-html');
 
         if (mode === 'html' && currentMessage && currentMessage.html) {
-            textEl.style.display = 'none';
-            htmlEl.style.display = 'block';
+            paper.style.display = 'none';
+            html.style.display = 'block';
             textTab.classList.remove('active');
             htmlTab.classList.add('active');
             return;
         }
 
-        textEl.style.display = 'block';
-        htmlEl.style.display = 'none';
+        paper.style.display = 'block';
+        html.style.display = 'none';
         textTab.classList.add('active');
         htmlTab.classList.remove('active');
     }
@@ -492,22 +630,42 @@
         document.getElementById('reader').style.display = 'none';
     }
 
+    async function copyAddress() {
+        const address = document.getElementById('address').textContent;
+        try {
+            await navigator.clipboard.writeText(address);
+            setStatus('адрес скопирован');
+            haptic('impact', 'medium');
+            if (tg) tg.showAlert('Адрес скопирован');
+        } catch (_) {
+            setStatus('не удалось скопировать адрес');
+        }
+    }
+
     async function manualRotate() {
-        await rotateMailbox(false);
+        try {
+            await rotateMailbox(false);
+        } catch (_) {
+            setStatus('ошибка смены адреса');
+        }
     }
 
     async function resetSession() {
-        await api('/api/reset', { userId });
-        await initMailbox();
-    }
-
-    async function copyAddress() {
-        const text = document.getElementById('address').textContent;
+        setStatus('сброс сессии...');
+        closeReader();
         try {
-            await navigator.clipboard.writeText(text);
-            haptic('impact', 'medium');
-            if (tg) tg.showAlert('Адрес скопирован');
-        } catch (_) {}
+            await api('/api/reset', { userId });
+        } catch (_) {
+            // Даже если reset вернул ошибку, продолжаем создание новой почты.
+        }
+
+        try {
+            await initMailbox();
+            setStatus('сессия сброшена, новый адрес создан');
+            haptic('notify', 'success');
+        } catch (_) {
+            setStatus('ошибка сброса сессии');
+        }
     }
 
     setInterval(async () => {
@@ -521,7 +679,12 @@
 
     window.onload = async () => {
         updateTimerView();
-        await initMailbox();
+        try {
+            await initMailbox();
+            setStatus('готово к рейду');
+        } catch (_) {
+            setStatus('ошибка инициализации');
+        }
     };
 </script>
 </body>
