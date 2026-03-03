@@ -182,22 +182,22 @@ function startBot() {
         try {
             await ctx.setChatMenuButton({
                 type: 'web_app',
-                text: '📧 Почта',
+                text: '⛏ Почтовый верстак',
                 web_app: { url: WEB_APP_URL }
             });
 
             await ctx.replyWithPhoto(
                 'https://cdn-icons-png.flaticon.com/512/9664/9664634.png',
                 {
-                    caption: '<b>Добро пожаловать!</b>\n\n' +
-                             '📨 Генерация временного адреса\n' +
-                             '⚡ Мгновенный приём писем\n' +
-                             '🔐 Без хранения данных\n' +
-                             '🕶 Полная анонимность\n\n' +
-                             'Нажми кнопку ниже, чтобы начать:',
+                    caption: '<b>⛏ MINE MAIL: Почтовый верстак</b>\n\n' +
+                             '📮 Интерфейс miniapp полностью на русском\n' +
+                             '📊 Статистика: созданные почты и письма\n' +
+                             '📖 Полноценное чтение писем (текст/HTML)\n' +
+                             '♻️ Автосмена адреса каждые 20 минут\n\n' +
+                             'Нажми кнопку ниже и открой верстак:',
                     parse_mode: 'HTML',
                     ...Markup.inlineKeyboard([
-                        Markup.button.webApp('Получить email 📧', WEB_APP_URL)
+                        Markup.button.webApp('Открыть MINE MAIL ⛏', WEB_APP_URL)
                     ])
                 }
             );
