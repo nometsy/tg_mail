@@ -10,73 +10,57 @@
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
     <style>
         :root {
-            --sky-1: #70c4ff;
-            --sky-2: #bfe7ff;
-            --grass-a: #61ad45;
-            --grass-b: #3c7f2c;
-            --stone-a: #4f4f4f;
-            --stone-b: #2d2d2d;
-            --panel: #202020;
-            --panel-2: #151515;
-            --pixel-border: #0c0c0c;
-            --text: #f3f3f3;
-            --text-soft: #b6b6b6;
+            --text: #f4f4f4;
+            --soft: #bdbdbd;
             --gold: #ffd24a;
-            --emerald: #4eff77;
-            --redstone: #ff5f5f;
-            --diamond: #6de2ff;
-            --paper: #ede4c8;
-            --paper-text: #2d2d2d;
+            --green: #58df63;
+            --red: #ff6868;
+            --blue: #7ad7ff;
+            --panel: #1a1a1a;
+            --panel-2: #262626;
+            --outline: #090909;
         }
-
         * { box-sizing: border-box; }
-
         body {
             margin: 0;
             min-height: 100vh;
             color: var(--text);
             font-family: 'VT323', monospace;
-            font-size: 26px;
-            line-height: 1.15;
+            font-size: 25px;
             background:
-                radial-gradient(circle at 15% 10%, rgba(255, 255, 255, 0.45) 0 7%, transparent 8%),
-                radial-gradient(circle at 78% 20%, rgba(255, 255, 255, 0.35) 0 6%, transparent 7%),
-                linear-gradient(180deg, var(--sky-1) 0%, var(--sky-2) 42%, var(--grass-a) 42%, var(--grass-b) 55%, #7a4f2f 55%, #5f3922 100%);
-            padding: 14px 10px 24px;
+                radial-gradient(circle at 15% 10%, rgba(255, 255, 255, 0.4) 0 7%, transparent 8%),
+                radial-gradient(circle at 80% 18%, rgba(255, 255, 255, 0.3) 0 6%, transparent 7%),
+                linear-gradient(180deg, #70c5ff 0%, #bde7ff 42%, #60a845 42%, #3f7f30 55%, #7b4f30 55%, #5b3721 100%);
+            padding: 12px 10px 20px;
         }
-
         .cloud {
             position: fixed;
-            top: 32px;
+            top: 28px;
             width: 130px;
             height: 34px;
-            background: rgba(255, 255, 255, 0.88);
-            box-shadow: 36px 0 0 rgba(255, 255, 255, 0.88), 18px -16px 0 rgba(255, 255, 255, 0.92);
-            opacity: 0.7;
             z-index: 0;
-            animation: drift 26s linear infinite;
+            opacity: 0.72;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 32px 0 0 rgba(255, 255, 255, 0.9), 16px -14px 0 rgba(255, 255, 255, 0.94);
+            animation: drift 29s linear infinite;
         }
-
-        .cloud.c2 { top: 96px; animation-duration: 35s; animation-delay: -12s; opacity: 0.5; }
-        .cloud.c3 { top: 152px; animation-duration: 42s; animation-delay: -7s; opacity: 0.4; }
-
+        .cloud.c2 { top: 90px; animation-duration: 36s; animation-delay: -10s; opacity: 0.55; }
+        .cloud.c3 { top: 145px; animation-duration: 43s; animation-delay: -8s; opacity: 0.4; }
         @keyframes drift {
             from { transform: translateX(-220px); }
             to { transform: translateX(calc(100vw + 250px)); }
         }
-
         .app {
             position: relative;
             z-index: 2;
-            width: min(1020px, 100%);
+            width: min(1060px, 100%);
             margin: 0 auto;
-            border: 4px solid var(--pixel-border);
-            box-shadow: 0 0 0 4px #696969 inset, 0 12px 28px rgba(0, 0, 0, 0.38);
-            background: linear-gradient(180deg, var(--stone-a), var(--stone-b));
+            border: 4px solid var(--outline);
+            box-shadow: 0 0 0 4px #676767 inset, 0 12px 30px rgba(0,0,0,.38);
+            background: linear-gradient(180deg, #4e4e4e 0%, #2f2f2f 100%);
             padding: 12px;
         }
-
-        .title-row {
+        .top {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -84,199 +68,197 @@
             flex-wrap: wrap;
             margin-bottom: 10px;
         }
-
         .title {
             margin: 0;
             font-family: 'Press Start 2P', monospace;
             font-size: 14px;
-            line-height: 1.35;
             color: var(--gold);
+            line-height: 1.4;
             text-shadow: 2px 2px 0 #000;
         }
-
-        .badge {
+        .status-dot {
             font-family: 'Press Start 2P', monospace;
-            font-size: 9px;
+            font-size: 8px;
             color: #111;
-            background: var(--emerald);
-            border: 3px solid #0d3d16;
+            background: var(--green);
+            border: 2px solid #0a430e;
             padding: 8px;
         }
-
-        .hud {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 8px;
-            margin-bottom: 10px;
-        }
-
         .panel {
-            background: linear-gradient(180deg, #212121 0%, #141414 100%);
-            border: 3px solid var(--pixel-border);
-            box-shadow: 0 0 0 3px #555 inset;
+            border: 3px solid var(--outline);
+            background: linear-gradient(180deg, #232323 0%, #151515 100%);
+            box-shadow: 0 0 0 3px #575757 inset;
             padding: 8px;
         }
-
-        .bar-wrap {
-            border: 2px solid #0f0f0f;
-            background: #111;
+        .bar {
             height: 18px;
+            border: 2px solid #060606;
+            background: #111;
             margin-bottom: 6px;
         }
-
         #timer-fill {
             width: 100%;
             height: 100%;
-            background: repeating-linear-gradient(90deg, #65d94b 0 12px, #56bc41 12px 24px);
+            background: repeating-linear-gradient(90deg, #64d24d 0 12px, #55b542 12px 24px);
             transition: width 1s linear;
         }
-
-        .hud-line {
+        .hud {
             display: flex;
             justify-content: space-between;
-            align-items: center;
             gap: 8px;
-            color: var(--text-soft);
-            font-size: 22px;
             flex-wrap: wrap;
+            color: var(--soft);
+            font-size: 22px;
         }
-
-        .hud-big {
-            font-family: 'Press Start 2P', monospace;
-            font-size: 10px;
-            line-height: 1.35;
-            color: #d6d6d6;
+        .warning {
+            display: none;
+            margin-top: 8px;
+            border: 2px solid #4e160f;
+            background: linear-gradient(180deg, #8f362b 0%, #6f241b 100%);
+            color: #fff1eb;
+            padding: 8px;
         }
-
-        .addr {
+        .address {
+            margin-top: 10px;
             border: 3px solid #060606;
             background: #101010;
-            box-shadow: 0 0 0 3px #4d4d4d inset;
-            color: var(--emerald);
-            font-size: 28px;
-            word-break: break-all;
+            box-shadow: 0 0 0 3px #474747 inset;
+            color: var(--green);
             padding: 10px;
-            margin-bottom: 10px;
+            word-break: break-all;
+            font-size: 28px;
         }
-
-        .control-grid {
+        .buttons {
+            margin-top: 10px;
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 8px;
-            margin-bottom: 10px;
         }
-
         button {
-            border: 3px solid #0a0a0a;
-            box-shadow: 0 4px 0 #111;
-            background: linear-gradient(180deg, #6f6f6f 0%, #4e4e4e 100%);
+            border: 3px solid #090909;
+            box-shadow: 0 4px 0 #121212;
+            background: linear-gradient(180deg, #707070 0%, #4f4f4f 100%);
             color: #fff;
             font-family: 'Press Start 2P', monospace;
-            font-size: 10px;
+            font-size: 9px;
             line-height: 1.4;
             text-transform: uppercase;
             padding: 11px 8px;
             cursor: pointer;
         }
-
-        button:active { transform: translateY(2px); box-shadow: 0 2px 0 #111; }
-        .btn-rotate { background: linear-gradient(180deg, #d3ba57 0%, #9a7d2e 100%); }
-        .btn-reset { background: linear-gradient(180deg, #c96556 0%, #943f34 100%); }
-        .btn-close { background: linear-gradient(180deg, #7f7f7f 0%, #5d5d5d 100%); }
+        button:active { transform: translateY(2px); box-shadow: 0 2px 0 #121212; }
+        .btn-gold { background: linear-gradient(180deg, #d6b855 0%, #9a7c2f 100%); }
+        .btn-red { background: linear-gradient(180deg, #c85f52 0%, #933a31 100%); }
+        .btn-green { background: linear-gradient(180deg, #5dbb58 0%, #3f8f3c 100%); }
 
         .stats {
+            margin-top: 10px;
             display: grid;
             grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: 8px;
-            margin-bottom: 10px;
         }
-
         .stat {
-            border: 3px solid #0b0b0b;
+            border: 3px solid #080808;
             background: linear-gradient(180deg, #2a2a2a 0%, #1b1b1b 100%);
             padding: 8px;
-            min-height: 90px;
+            min-height: 94px;
         }
-
         .stat-label {
             font-family: 'Press Start 2P', monospace;
             font-size: 8px;
-            line-height: 1.5;
-            color: var(--text-soft);
+            line-height: 1.4;
+            color: var(--soft);
             margin-bottom: 8px;
         }
+        .stat-value {
+            font-size: 36px;
+            color: var(--gold);
+        }
 
-        .stat-value { font-size: 36px; color: var(--gold); }
-
+        .grid {
+            margin-top: 10px;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 8px;
+        }
         .section-title {
             margin: 0 0 8px;
             font-family: 'Press Start 2P', monospace;
             font-size: 10px;
             color: #fff;
         }
-
         .inbox {
-            border: 3px solid #070707;
-            background: #121212;
-            box-shadow: 0 0 0 3px #313131 inset;
-            min-height: 180px;
-            max-height: 42vh;
+            border: 3px solid #050505;
+            background: #111;
+            box-shadow: 0 0 0 3px #343434 inset;
+            min-height: 220px;
+            max-height: 48vh;
             overflow: auto;
             padding: 8px;
-            margin-bottom: 10px;
         }
-
-        .mail-card {
-            border: 2px solid #060606;
-            background: linear-gradient(180deg, #313131 0%, #212121 100%);
-            box-shadow: 0 0 0 2px #4c4c4c inset;
+        .mail {
+            border: 2px solid #070707;
+            background: linear-gradient(180deg, #313131 0%, #222 100%);
+            box-shadow: 0 0 0 2px #4f4f4f inset;
             padding: 8px;
             margin-bottom: 8px;
             cursor: pointer;
-            transition: transform 0.15s ease, filter 0.15s ease;
+            transition: transform .15s ease, filter .15s ease;
         }
-
-        .mail-card:hover { transform: translateY(-1px); filter: brightness(1.06); }
-
+        .mail:hover { transform: translateY(-1px); filter: brightness(1.07); }
         .mail-top {
             display: flex;
             justify-content: space-between;
             gap: 8px;
-            align-items: center;
-            margin-bottom: 6px;
             flex-wrap: wrap;
+            color: var(--blue);
+            font-size: 21px;
         }
-
-        .mail-from { color: var(--diamond); font-size: 22px; word-break: break-word; }
-        .mail-date { color: var(--text-soft); font-size: 20px; }
-        .mail-subject { font-size: 24px; word-break: break-word; }
-        .mail-tip { color: #d2c893; font-size: 21px; }
-
+        .mail-subject { font-size: 24px; }
+        .mail-tip { color: #d7c58e; font-size: 20px; }
         .empty {
-            border: 2px dashed #555;
-            padding: 12px;
-            color: var(--text-soft);
+            border: 2px dashed #4b4b4b;
+            color: var(--soft);
             text-align: center;
+            padding: 12px;
         }
+
+        .history {
+            border: 3px solid #060606;
+            background: #151515;
+            box-shadow: 0 0 0 3px #373737 inset;
+            padding: 8px;
+            min-height: 220px;
+            max-height: 48vh;
+            overflow: auto;
+        }
+        .hist-item {
+            border: 2px solid #0b0b0b;
+            background: #242424;
+            padding: 6px;
+            margin-bottom: 7px;
+            font-size: 20px;
+            color: #ddd;
+        }
+        .hist-head { color: var(--gold); }
+        .hist-meta { color: var(--soft); }
 
         details.help {
-            border: 3px solid #090909;
-            background: linear-gradient(180deg, #262626 0%, #1b1b1b 100%);
-            box-shadow: 0 0 0 3px #494949 inset;
+            margin-top: 10px;
+            border: 3px solid #080808;
+            background: linear-gradient(180deg, #252525 0%, #1a1a1a 100%);
+            box-shadow: 0 0 0 3px #4d4d4d inset;
             padding: 8px;
         }
-
         details.help summary {
-            cursor: pointer;
             list-style: none;
+            cursor: pointer;
             font-family: 'Press Start 2P', monospace;
             font-size: 10px;
             color: var(--gold);
         }
-
         details.help summary::-webkit-details-marker { display: none; }
-
-        .help-body { margin-top: 8px; color: #e7e7e7; }
+        .help-body { margin-top: 8px; }
         .help-body p { margin: 0 0 7px; }
 
         #reader {
@@ -284,69 +266,82 @@
             inset: 0;
             z-index: 3000;
             display: none;
-            background: rgba(10, 10, 10, 0.95);
+            background: rgba(12, 12, 12, 0.96);
             padding: 10px;
         }
-
         .reader-box {
-            width: min(1050px, 100%);
+            width: min(1080px, 100%);
             height: 100%;
             margin: 0 auto;
-            border: 4px solid #0a0a0a;
-            background: linear-gradient(180deg, #373737 0%, #222 100%);
-            box-shadow: 0 0 0 4px #666 inset;
+            border: 4px solid #070707;
+            background: linear-gradient(180deg, #383838 0%, #232323 100%);
+            box-shadow: 0 0 0 4px #676767 inset;
             padding: 10px;
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
-
         .reader-meta {
-            border: 2px solid #0a0a0a;
-            background: #141414;
-            color: #ddd;
+            border: 2px solid #090909;
+            background: #121212;
+            color: #dfdfdf;
             padding: 8px;
-            font-size: 22px;
+            font-size: 21px;
         }
-
+        .otp {
+            display: none;
+            border: 2px solid #173b13;
+            background: linear-gradient(180deg, #274f22 0%, #1d3b19 100%);
+            color: #e8ffe4;
+            padding: 8px;
+        }
+        .otp-codes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 5px;
+        }
+        .otp-code {
+            border: 2px solid #0f220f;
+            background: #101d10;
+            padding: 6px;
+            cursor: pointer;
+            color: #b6ffb0;
+        }
         .reader-controls {
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-template-columns: repeat(5, minmax(0, 1fr));
             gap: 8px;
         }
-
-        .tab.active { outline: 2px solid #7acbff; }
-
+        .tab.active { outline: 2px solid #79ccff; }
         #paper {
             flex: 1;
-            border: 3px solid #463627;
-            background: repeating-linear-gradient(180deg, #f0e6ca 0 20px, #e8debf 20px 40px);
-            color: var(--paper-text);
-            padding: 12px;
+            border: 3px solid #4f3f2c;
+            background: repeating-linear-gradient(180deg, #efe7cb 0 20px, #e7ddbd 20px 40px);
+            color: #2d2d2d;
             white-space: pre-wrap;
             overflow: auto;
+            padding: 12px;
             font-size: 24px;
             display: block;
         }
-
         #html-view {
             flex: 1;
+            display: none;
             border: 3px solid #111;
             background: #fff;
             width: 100%;
-            display: none;
         }
 
-        @media (max-width: 860px) {
-            .hud { grid-template-columns: 1fr; }
+        @media (max-width: 930px) {
             .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .grid { grid-template-columns: 1fr; }
         }
-
-        @media (max-width: 640px) {
-            .title { font-size: 12px; }
-            .control-grid { grid-template-columns: 1fr; }
+        @media (max-width: 680px) {
+            .buttons { grid-template-columns: 1fr; }
             .stats { grid-template-columns: 1fr; }
             .reader-controls { grid-template-columns: 1fr; }
+            .title { font-size: 12px; }
             body { font-size: 24px; }
         }
     </style>
@@ -357,75 +352,82 @@
 <div class="cloud c3"></div>
 
 <div class="app">
-    <div class="title-row">
+    <div class="top">
         <h1 class="title">MINE MAIL // ПОЧТОВЫЙ РЕЙД</h1>
-        <div class="badge">ONLINE</div>
+        <div class="status-dot">LIVE</div>
     </div>
 
-    <div class="hud">
-        <div class="panel">
-            <div class="bar-wrap"><div id="timer-fill"></div></div>
-            <div class="hud-line">
-                <span id="time-left">До автосмены: 20:00</span>
-                <span id="sync-status">Статус: синхронизация...</span>
+    <div class="panel">
+        <div class="bar"><div id="timer-fill"></div></div>
+        <div class="hud">
+            <span id="time-left">До автосмены: 20:00</span>
+            <span id="sync-status">Статус: подключение...</span>
+        </div>
+        <div id="extend-warning" class="warning">
+            До автосмены меньше минуты. Можно продлить текущий адрес ещё на 20 минут.
+            <div style="margin-top:8px;">
+                <button class="btn-green" onclick="extendSession()">Продлить +20 мин</button>
             </div>
         </div>
-        <div class="panel hud-big">
-            РЕЖИМ: ВЫЖИВАНИЕ<br>
-            ПЕРИОД ПОЧТЫ: 20 МИН
-        </div>
     </div>
 
-    <div id="address" class="addr">Создаю временную почту...</div>
+    <div id="address" class="address">Создание почты...</div>
 
-    <div class="control-grid">
+    <div class="buttons">
         <button onclick="copyAddress()">Копировать адрес</button>
-        <button class="btn-rotate" onclick="manualRotate()">Новая почта</button>
-        <button class="btn-reset" onclick="resetSession()">Сброс сессии</button>
+        <button class="btn-gold" onclick="manualRotate()">Новая почта</button>
+        <button class="btn-red" onclick="resetSession()">Сброс сессии</button>
     </div>
 
     <div class="stats">
-        <div class="stat">
-            <div class="stat-label">Почт создано</div>
-            <div id="stat-mailboxes" class="stat-value">0</div>
+        <div class="stat"><div class="stat-label">Почт создано</div><div id="stat-mailboxes" class="stat-value">0</div></div>
+        <div class="stat"><div class="stat-label">Писем найдено</div><div id="stat-total-msg" class="stat-value">0</div></div>
+        <div class="stat"><div class="stat-label">В текущем ящике</div><div id="stat-current" class="stat-value">0</div></div>
+        <div class="stat"><div class="stat-label">Прочитано</div><div id="stat-opened" class="stat-value">0</div></div>
+    </div>
+
+    <div class="grid">
+        <div>
+            <h2 class="section-title">ВХОДЯЩИЕ</h2>
+            <div id="inbox" class="inbox"><div class="empty">Пока писем нет. Ждём дроп...</div></div>
         </div>
-        <div class="stat">
-            <div class="stat-label">Писем найдено</div>
-            <div id="stat-total-messages" class="stat-value">0</div>
-        </div>
-        <div class="stat">
-            <div class="stat-label">В текущем ящике</div>
-            <div id="stat-current" class="stat-value">0</div>
-        </div>
-        <div class="stat">
-            <div class="stat-label">Прочитано</div>
-            <div id="stat-opened" class="stat-value">0</div>
+        <div>
+            <h2 class="section-title">ИСТОРИЯ РОТАЦИЙ</h2>
+            <div id="history" class="history"><div class="empty">История пустая</div></div>
         </div>
     </div>
 
-    <h2 class="section-title">ВХОДЯЩИЕ СООБЩЕНИЯ</h2>
-    <div id="inbox" class="inbox"><div class="empty">Писем пока нет. Ожидаем дроп лута...</div></div>
-
     <details class="help" open>
-        <summary>ИНСТРУКЦИЯ ИГРЫ</summary>
+        <summary>ИНСТРУКЦИЯ ПО ИСПОЛЬЗОВАНИЮ</summary>
         <div class="help-body">
-            <p>1. Скопируй адрес и используй его на нужном сайте для получения писем.</p>
-            <p>2. Новые письма автоматически появляются в блоке "Входящие" каждые 15 секунд.</p>
-            <p>3. Нажми на письмо, чтобы открыть красивый режим чтения (Текст/HTML).</p>
-            <p>4. Через 20 минут адрес меняется автоматически. Можно сменить вручную кнопкой "Новая почта".</p>
-            <p>5. Кнопка "Сброс сессии" удаляет текущую сессию и создаёт новую почту сразу.</p>
+            <p>1. Скопируй временный адрес и используй его для регистрации/кодов.</p>
+            <p>2. Письма приходят в реальном времени через push-режим.</p>
+            <p>3. Нажми на письмо: откроется красивый режим чтения + OTP-коды.</p>
+            <p>4. Можно экспортировать письмо в TXT или HTML.</p>
+            <p>5. Каждые 20 минут адрес меняется автоматически.</p>
+            <p>6. За 1 минуту до смены появится кнопка продления на +20 минут.</p>
+            <p>7. В "Истории ротаций" отображаются прошлые адреса и активность.</p>
         </div>
     </details>
 </div>
 
 <div id="reader">
     <div class="reader-box">
-        <div id="reader-meta" class="reader-meta">Открытие письма...</div>
+        <div id="reader-meta" class="reader-meta">Загрузка письма...</div>
+
+        <div id="otp-box" class="otp">
+            Найдены OTP-коды:
+            <div id="otp-codes" class="otp-codes"></div>
+        </div>
+
         <div class="reader-controls">
             <button id="tab-text" class="tab active" onclick="switchView('text')">Текст</button>
             <button id="tab-html" class="tab" onclick="switchView('html')">HTML</button>
-            <button class="btn-close" onclick="closeReader()">Закрыть</button>
+            <button onclick="exportCurrent('txt')">Экспорт TXT</button>
+            <button onclick="exportCurrent('html')">Экспорт HTML</button>
+            <button class="btn-red" onclick="closeReader()">Закрыть</button>
         </div>
+
         <pre id="paper"></pre>
         <iframe id="html-view" sandbox></iframe>
     </div>
@@ -434,7 +436,7 @@
 <script>
     const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
     const userId = tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id
-        ? tg.initDataUnsafe.user.id
+        ? String(tg.initDataUnsafe.user.id)
         : 'local-dev-user';
 
     if (tg) {
@@ -443,11 +445,20 @@
     }
 
     const MAIL_LIFETIME_MS = 20 * 60 * 1000;
-    const CHECK_INTERVAL_MS = 15000;
+    const FALLBACK_CHECK_MS = 15000;
 
     let expiresAt = Date.now() + MAIL_LIFETIME_MS;
+    let warned = false;
     let lastMessageCount = 0;
+    let stream = null;
+    let streamActive = false;
+    let fallbackTimer = null;
     let currentMessage = null;
+    let currentMessageId = null;
+
+    function setStatus(text) {
+        document.getElementById('sync-status').textContent = `Статус: ${text}`;
+    }
 
     function haptic(type, value) {
         if (!tg || !tg.HapticFeedback) return;
@@ -464,56 +475,12 @@
             body: JSON.stringify(payload)
         });
 
-        if (response.status === 410) {
-            throw new Error('SESSION_EXPIRED');
-        }
+        if (response.status === 410) throw new Error('SESSION_EXPIRED');
+        if (!response.ok) throw new Error(await response.text() || 'API_ERROR');
 
-        if (!response.ok) {
-            const body = await response.text();
-            throw new Error(body || 'API_ERROR');
-        }
-
-        const type = response.headers.get('content-type') || '';
-        if (type.includes('application/json')) return response.json();
+        const ct = response.headers.get('content-type') || '';
+        if (ct.includes('application/json')) return response.json();
         return response.text();
-    }
-
-    function setStatus(text) {
-        document.getElementById('sync-status').textContent = `Статус: ${text}`;
-    }
-
-    function formatCountdown(ms) {
-        const totalSeconds = Math.max(0, Math.floor(ms / 1000));
-        const min = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
-        const sec = (totalSeconds % 60).toString().padStart(2, '0');
-        return `${min}:${sec}`;
-    }
-
-    function updateTimerView() {
-        const left = Math.max(0, expiresAt - Date.now());
-        const percent = (left / MAIL_LIFETIME_MS) * 100;
-        document.getElementById('timer-fill').style.width = `${percent}%`;
-        document.getElementById('time-left').textContent = `До автосмены: ${formatCountdown(left)}`;
-    }
-
-    async function initMailbox() {
-        const data = await api('/api/init', { userId });
-        expiresAt = Date.now() + (data.expiresInMs || MAIL_LIFETIME_MS);
-        document.getElementById('address').textContent = data.address;
-        await refreshStats();
-        await checkInbox();
-    }
-
-    async function rotateMailbox(auto = false) {
-        const data = await api('/api/rotate', { userId });
-        expiresAt = Date.now() + (data.expiresInMs || MAIL_LIFETIME_MS);
-        lastMessageCount = 0;
-        document.getElementById('address').textContent = data.address;
-        renderInbox([]);
-        setStatus(auto ? 'адрес сменён автоматически' : 'адрес сменён вручную');
-        haptic('notify', 'success');
-        await refreshStats();
-        await checkInbox();
     }
 
     function escapeHtml(value) {
@@ -525,84 +492,311 @@
             .replace(/'/g, '&#39;');
     }
 
+    function formatCountdown(ms) {
+        const sec = Math.max(0, Math.floor(ms / 1000));
+        const m = String(Math.floor(sec / 60)).padStart(2, '0');
+        const s = String(sec % 60).padStart(2, '0');
+        return `${m}:${s}`;
+    }
+
+    function updateTimer() {
+        const left = Math.max(0, expiresAt - Date.now());
+        document.getElementById('time-left').textContent = `До автосмены: ${formatCountdown(left)}`;
+        document.getElementById('timer-fill').style.width = `${(left / MAIL_LIFETIME_MS) * 100}%`;
+
+        const warning = document.getElementById('extend-warning');
+        if (left <= 60000 && left > 0 && !warned) {
+            warning.style.display = 'block';
+            warned = true;
+            setStatus('внимание: скоро автосмена');
+        }
+        if (left > 60000) {
+            warning.style.display = 'none';
+            warned = false;
+        }
+    }
+
+    function applySession(session) {
+        if (!session) return;
+        expiresAt = Date.now() + (session.expiresInMs || MAIL_LIFETIME_MS);
+        document.getElementById('address').textContent = session.address;
+        updateTimer();
+    }
+
     function renderInbox(messages) {
         const inbox = document.getElementById('inbox');
         if (!messages.length) {
-            inbox.innerHTML = '<div class="empty">Писем пока нет. Ожидаем дроп лута...</div>';
+            inbox.innerHTML = '<div class="empty">Пока писем нет. Ждём дроп...</div>';
             return;
         }
 
-        inbox.innerHTML = messages.map((mail) => {
-            const from = mail.from && mail.from.address ? mail.from.address : 'Неизвестный отправитель';
-            const subject = mail.subject || '(без темы)';
-            const date = mail.createdAt ? new Date(mail.createdAt).toLocaleString('ru-RU') : 'дата неизвестна';
-            return `<div class="mail-card" onclick="openMessage('${mail.id}')">
-                        <div class="mail-top">
-                            <div class="mail-from">${escapeHtml(from)}</div>
-                            <div class="mail-date">${escapeHtml(date)}</div>
-                        </div>
+        inbox.innerHTML = messages.map((m) => {
+            const from = m.from && m.from.address ? m.from.address : 'Неизвестный отправитель';
+            const subject = m.subject || '(без темы)';
+            const date = m.createdAt ? new Date(m.createdAt).toLocaleString('ru-RU') : 'без даты';
+
+            return `<div class="mail" onclick="openMessage('${m.id}')">
+                        <div class="mail-top"><span>${escapeHtml(from)}</span><span>${escapeHtml(date)}</span></div>
                         <div class="mail-subject">${escapeHtml(subject)}</div>
-                        <div class="mail-tip">Нажми, чтобы открыть письмо</div>
+                        <div class="mail-tip">Нажми для чтения</div>
                     </div>`;
         }).join('');
     }
 
-    async function checkInbox() {
-        try {
-            const list = await api('/api/check', { userId });
-            const messages = Array.isArray(list) ? list : [];
-            renderInbox(messages);
-
-            if (messages.length > lastMessageCount) {
-                haptic('notify', 'success');
-                setStatus('получено новое письмо');
-            } else {
-                setStatus(`синхронизировано в ${new Date().toLocaleTimeString('ru-RU')}`);
-            }
-
-            lastMessageCount = messages.length;
-            await refreshStats();
-        } catch (error) {
-            if (String(error.message).includes('SESSION_EXPIRED')) {
-                await rotateMailbox(true);
-                return;
-            }
-            setStatus('ошибка синхронизации');
+    function renderHistory(items) {
+        const box = document.getElementById('history');
+        if (!items.length) {
+            box.innerHTML = '<div class="empty">История пустая</div>';
+            return;
         }
+
+        box.innerHTML = items.map((h) => {
+            const created = new Date(h.createdAt).toLocaleString('ru-RU');
+            const reasonMap = {
+                init: 'инициализация',
+                manual: 'ручная смена',
+                auto: 'автосмена',
+                expired: 'просрочено',
+                reset: 'сброс'
+            };
+            const reason = reasonMap[h.reason] || h.reason;
+
+            return `<div class="hist-item">
+                        <div class="hist-head">${escapeHtml(h.address)}</div>
+                        <div class="hist-meta">${escapeHtml(created)} | ${escapeHtml(reason)}</div>
+                        <div>Писем: ${h.seenCount} | Прочитано: ${h.openedCount}</div>
+                    </div>`;
+        }).join('');
     }
 
     async function refreshStats() {
         try {
-            const data = await api('/api/stats', { userId });
-            document.getElementById('stat-mailboxes').textContent = data.totalMailboxesCreated || 0;
-            document.getElementById('stat-total-messages').textContent = data.totalUniqueMessagesSeen || 0;
-            document.getElementById('stat-current').textContent = data.currentMailboxSeen || 0;
-            document.getElementById('stat-opened').textContent = data.currentMailboxOpened || 0;
+            const s = await api('/api/stats', { userId });
+            document.getElementById('stat-mailboxes').textContent = s.totalMailboxesCreated || 0;
+            document.getElementById('stat-total-msg').textContent = s.totalUniqueMessagesSeen || 0;
+            document.getElementById('stat-current').textContent = s.currentMailboxSeen || 0;
+            document.getElementById('stat-opened').textContent = s.currentMailboxOpened || 0;
         } catch (_) {}
+    }
+
+    async function refreshHistory() {
+        try {
+            const list = await api('/api/history', { userId });
+            renderHistory(Array.isArray(list) ? list : []);
+        } catch (_) {}
+    }
+
+    function applyInboxEvent(payload) {
+        if (!payload || !payload.messages) return;
+        renderInbox(payload.messages);
+
+        if (payload.session) applySession(payload.session);
+        if (payload.stats) {
+            document.getElementById('stat-mailboxes').textContent = payload.stats.totalMailboxesCreated || 0;
+            document.getElementById('stat-total-msg').textContent = payload.stats.totalUniqueMessagesSeen || 0;
+            document.getElementById('stat-current').textContent = payload.stats.currentMailboxSeen || 0;
+            document.getElementById('stat-opened').textContent = payload.stats.currentMailboxOpened || 0;
+        }
+
+        if (payload.messages.length > lastMessageCount) {
+            haptic('notify', 'success');
+            setStatus('получено новое письмо');
+        } else {
+            setStatus(`push-синхронизация ${new Date().toLocaleTimeString('ru-RU')}`);
+        }
+
+        lastMessageCount = payload.messages.length;
+    }
+
+    function startStream() {
+        if (!window.EventSource) {
+            setStatus('push недоступен, включён fallback');
+            startFallback();
+            return;
+        }
+
+        if (stream) stream.close();
+        stream = new EventSource(`/api/stream?userId=${encodeURIComponent(userId)}`);
+
+        stream.addEventListener('connected', () => {
+            streamActive = true;
+            setStatus('push-канал подключён');
+        });
+
+        stream.addEventListener('inbox', (e) => {
+            streamActive = true;
+            const payload = JSON.parse(e.data);
+            applyInboxEvent(payload);
+        });
+
+        stream.addEventListener('session_expired', async () => {
+            streamActive = true;
+            await rotateMailbox('auto');
+        });
+
+        stream.addEventListener('no_session', async () => {
+            streamActive = true;
+            await initMailbox();
+        });
+
+        stream.onerror = () => {
+            streamActive = false;
+            setStatus('ошибка push, fallback polling');
+            if (stream) stream.close();
+            startFallback();
+        };
+    }
+
+    async function fallbackCheck() {
+        try {
+            const list = await api('/api/check', { userId });
+            const messages = Array.isArray(list) ? list : [];
+            renderInbox(messages);
+            if (messages.length > lastMessageCount) {
+                haptic('notify', 'success');
+            }
+            lastMessageCount = messages.length;
+            setStatus(`polling ${new Date().toLocaleTimeString('ru-RU')}`);
+            await refreshStats();
+        } catch (e) {
+            if (String(e.message).includes('SESSION_EXPIRED')) {
+                await rotateMailbox('auto');
+                return;
+            }
+            setStatus('ошибка polling');
+        }
+    }
+
+    function startFallback() {
+        if (fallbackTimer) return;
+        fallbackCheck();
+        fallbackTimer = setInterval(fallbackCheck, FALLBACK_CHECK_MS);
+    }
+
+    function stopFallback() {
+        if (!fallbackTimer) return;
+        clearInterval(fallbackTimer);
+        fallbackTimer = null;
+    }
+
+    async function initMailbox() {
+        const s = await api('/api/init', { userId });
+        applySession(s);
+        await refreshStats();
+        await refreshHistory();
+    }
+
+    async function rotateMailbox(reason) {
+        const s = await api('/api/rotate', { userId, reason });
+        applySession(s);
+        renderInbox([]);
+        closeReader();
+        lastMessageCount = 0;
+        await refreshStats();
+        await refreshHistory();
+        setStatus(reason === 'auto' ? 'адрес сменён автоматически' : 'адрес сменён');
+    }
+
+    async function extendSession() {
+        try {
+            const s = await api('/api/extend', { userId });
+            applySession(s);
+            document.getElementById('extend-warning').style.display = 'none';
+            warned = false;
+            setStatus('сессия продлена на 20 минут');
+            haptic('notify', 'success');
+        } catch (e) {
+            if (String(e.message).includes('SESSION_EXPIRED')) {
+                await rotateMailbox('auto');
+                return;
+            }
+            setStatus('ошибка продления');
+        }
+    }
+
+    async function copyAddress() {
+        const text = document.getElementById('address').textContent;
+        try {
+            await navigator.clipboard.writeText(text);
+            haptic('impact', 'medium');
+            setStatus('адрес скопирован');
+            if (tg) tg.showAlert('Адрес скопирован');
+        } catch (_) {
+            setStatus('не удалось скопировать');
+        }
+    }
+
+    async function manualRotate() {
+        try {
+            await rotateMailbox('manual');
+        } catch (_) {
+            setStatus('ошибка смены адреса');
+        }
+    }
+
+    async function resetSession() {
+        setStatus('сброс сессии...');
+        closeReader();
+
+        try {
+            await api('/api/reset', { userId });
+        } catch (_) {
+            // продолжаем создание новой почты
+        }
+
+        try {
+            await rotateMailbox('reset');
+            setStatus('сессия сброшена и пересоздана');
+        } catch (_) {
+            setStatus('ошибка сброса');
+        }
     }
 
     async function openMessage(messageId) {
         try {
             const data = await api('/api/message', { userId, msgId: messageId });
             currentMessage = data;
+            currentMessageId = messageId;
 
             const date = data.date ? new Date(data.date).toLocaleString('ru-RU') : 'дата неизвестна';
             document.getElementById('reader-meta').textContent = `От: ${data.from || 'неизвестно'} | Тема: ${data.subject || '(без темы)'} | ${date}`;
             document.getElementById('paper').textContent = data.textPlain || data.text || 'Текст письма отсутствует';
 
-            const htmlFrame = document.getElementById('html-view');
-            htmlFrame.srcdoc = data.html || '<p style="font-family:sans-serif;padding:12px;">HTML-версия отсутствует.</p>';
+            const html = document.getElementById('html-view');
+            html.srcdoc = data.html || '<p style="font-family:sans-serif;padding:12px;">HTML-версия отсутствует.</p>';
+
+            const otpBox = document.getElementById('otp-box');
+            const otpCodes = document.getElementById('otp-codes');
+            otpCodes.innerHTML = '';
+
+            if (Array.isArray(data.otpCodes) && data.otpCodes.length) {
+                otpBox.style.display = 'block';
+                otpCodes.innerHTML = data.otpCodes.map((code) => `<div class="otp-code" onclick="copyOtp('${code}')">${code}</div>`).join('');
+            } else {
+                otpBox.style.display = 'none';
+            }
 
             document.getElementById('reader').style.display = 'block';
             switchView('text');
-            haptic('impact', 'light');
             await refreshStats();
-        } catch (error) {
-            if (String(error.message).includes('SESSION_EXPIRED')) {
-                await rotateMailbox(true);
+            await refreshHistory();
+            haptic('impact', 'light');
+        } catch (e) {
+            if (String(e.message).includes('SESSION_EXPIRED')) {
+                await rotateMailbox('auto');
                 return;
             }
             setStatus('ошибка открытия письма');
+        }
+    }
+
+    async function copyOtp(code) {
+        try {
+            await navigator.clipboard.writeText(String(code));
+            setStatus(`OTP ${code} скопирован`);
+            haptic('impact', 'medium');
+        } catch (_) {
+            setStatus('не удалось скопировать OTP');
         }
     }
 
@@ -630,60 +824,30 @@
         document.getElementById('reader').style.display = 'none';
     }
 
-    async function copyAddress() {
-        const address = document.getElementById('address').textContent;
-        try {
-            await navigator.clipboard.writeText(address);
-            setStatus('адрес скопирован');
-            haptic('impact', 'medium');
-            if (tg) tg.showAlert('Адрес скопирован');
-        } catch (_) {
-            setStatus('не удалось скопировать адрес');
+    function exportCurrent(format) {
+        if (!currentMessageId) {
+            setStatus('сначала открой письмо');
+            return;
         }
-    }
-
-    async function manualRotate() {
-        try {
-            await rotateMailbox(false);
-        } catch (_) {
-            setStatus('ошибка смены адреса');
-        }
-    }
-
-    async function resetSession() {
-        setStatus('сброс сессии...');
-        closeReader();
-        try {
-            await api('/api/reset', { userId });
-        } catch (_) {
-            // Даже если reset вернул ошибку, продолжаем создание новой почты.
-        }
-
-        try {
-            await initMailbox();
-            setStatus('сессия сброшена, новый адрес создан');
-            haptic('notify', 'success');
-        } catch (_) {
-            setStatus('ошибка сброса сессии');
-        }
+        const url = `/api/export?userId=${encodeURIComponent(userId)}&msgId=${encodeURIComponent(currentMessageId)}&format=${encodeURIComponent(format)}`;
+        window.open(url, '_blank', 'noopener');
     }
 
     setInterval(async () => {
-        updateTimerView();
+        updateTimer();
         if ((expiresAt - Date.now()) <= 0) {
-            await rotateMailbox(true);
+            await rotateMailbox('auto');
         }
     }, 1000);
 
-    setInterval(checkInbox, CHECK_INTERVAL_MS);
-
     window.onload = async () => {
-        updateTimerView();
         try {
             await initMailbox();
+            startStream();
             setStatus('готово к рейду');
         } catch (_) {
             setStatus('ошибка инициализации');
+            startFallback();
         }
     };
 </script>
