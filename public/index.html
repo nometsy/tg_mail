@@ -3,212 +3,526 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>System Mail Terminal</title>
+    <title>Почтовый верстак</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #0a0a0a;
-            --container-bg: #121212;
-            --accent-cyan: #00f2fe;
-            --accent-pink: #ff00ff;
-            --text-main: #e0e0e0;
+            --sky-top: #73c8ff;
+            --sky-bottom: #d6f2ff;
+            --grass-1: #5aa042;
+            --grass-2: #3f7d2a;
+            --dirt-1: #8a5932;
+            --dirt-2: #6b4124;
+            --panel: #2d2d2d;
+            --panel-dark: #1f1f1f;
+            --stone: #b0b0b0;
+            --text: #f2f2f2;
+            --text-soft: #b9b9b9;
+            --accent: #ffd54d;
+            --danger: #ff6b57;
+            --ok: #5eff7e;
         }
+
+        * { box-sizing: border-box; }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: 'Courier New', Courier, monospace;
-            margin: 0; padding: 20px;
-            overflow-x: hidden; user-select: none;
+            margin: 0;
+            min-height: 100vh;
+            color: var(--text);
+            font-family: 'VT323', monospace;
+            font-size: 24px;
+            background:
+                linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 50%, var(--grass-1) 50%, var(--grass-2) 60%, var(--dirt-1) 60%, var(--dirt-2) 100%);
+            padding: 16px 12px 24px;
         }
 
-        /* Полоска сессии */
-        .session-timer { position: fixed; top: 0; left: 0; width: 100%; height: 3px; background: #1a1a1a; z-index: 1000; }
-        #progress-fill { height: 100%; width: 100%; background: linear-gradient(90deg, var(--accent-cyan), var(--accent-pink)); transition: width 1s linear; }
-
-        .header { text-align: center; color: var(--accent-cyan); font-size: 0.75rem; margin-bottom: 20px; text-shadow: 0 0 5px var(--accent-cyan); }
-        
-        .address-box { 
-            background: var(--container-bg); border: 1px solid var(--accent-cyan); 
-            padding: 15px; border-radius: 4px; text-align: center; font-size: 1.1rem; 
-            color: var(--accent-cyan); margin-bottom: 20px; word-break: break-all;
+        .shell {
+            width: min(980px, 100%);
+            margin: 0 auto;
+            background: linear-gradient(180deg, #3a3a3a 0%, #232323 100%);
+            border: 4px solid #111;
+            box-shadow: 0 0 0 4px #5a5a5a inset, 0 10px 24px rgba(0, 0, 0, 0.4);
+            padding: 14px;
         }
 
-        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 30px; }
-        
-        button { 
-            background: transparent; border: 1px solid var(--accent-cyan); color: var(--accent-cyan); 
-            padding: 12px; font-family: inherit; text-transform: uppercase; cursor: pointer; transition: 0.2s;
-        }
-        button:active { opacity: 0.7; transform: scale(0.98); }
-        .btn-reset { border-color: var(--accent-pink); color: var(--accent-pink); }
-
-        /* Входящие */
-        .inbox-title { font-size: 0.8rem; margin-bottom: 15px; border-left: 3px solid var(--accent-cyan); padding-left: 10px; display: flex; justify-content: space-between; }
-        .msg-card { background: #111; border: 1px solid #222; border-left: 3px solid var(--accent-cyan); padding: 12px; margin-bottom: 12px; cursor: pointer; }
-
-        /* Окно чтения (Modal) */
-        #message-modal { 
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(10, 10, 10, 0.98); z-index: 2000; padding: 20px; box-sizing: border-box; 
-        }
-        .modal-content { border: 1px solid var(--accent-cyan); padding: 15px; background: var(--container-bg); height: 90%; display: flex; flex-direction: column; }
-        .modal-header { border-bottom: 1px dashed var(--accent-cyan); margin-bottom: 15px; padding-bottom: 10px; }
-        
-        /* Разрешаем копирование текста письма */
-        #msg-body { 
-            flex-grow: 1; overflow-y: auto; white-space: pre-wrap; font-size: 0.9rem; color: #bbb; line-height: 1.4; 
-            user-select: text !important; -webkit-user-select: text !important;
+        .title {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--accent);
+            margin: 0 0 12px;
+            text-shadow: 2px 2px 0 #000;
         }
 
-        .skeleton-loader { display: none; }
-        .skeleton-item { height: 60px; background: #1a1a1a; margin-bottom: 10px; border-radius: 4px; }
+        .timer-wrap {
+            margin-bottom: 12px;
+            border: 3px solid #111;
+            background: #202020;
+            height: 16px;
+        }
+
+        #timer-fill {
+            height: 100%;
+            width: 100%;
+            background: repeating-linear-gradient(90deg, #64d649 0 12px, #56b53e 12px 24px);
+            transition: width 1s linear;
+        }
+
+        .status-line {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 12px;
+            color: var(--text-soft);
+            font-size: 21px;
+            flex-wrap: wrap;
+        }
+
+        .address-box {
+            padding: 10px;
+            background: #111;
+            border: 3px solid #000;
+            box-shadow: 0 0 0 3px #5d5d5d inset;
+            color: var(--ok);
+            word-break: break-all;
+            margin-bottom: 12px;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        button {
+            border: 3px solid #000;
+            background: linear-gradient(180deg, #6b6b6b 0%, #4c4c4c 100%);
+            color: #fff;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 10px;
+            padding: 10px 6px;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 3px 0 #1a1a1a;
+        }
+
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #1a1a1a;
+        }
+
+        .btn-danger { background: linear-gradient(180deg, #c35a4d 0%, #8e3d33 100%); }
+        .btn-accent { background: linear-gradient(180deg, #d6b450 0%, #9a7a2b 100%); }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .stat {
+            border: 3px solid #111;
+            background: linear-gradient(180deg, #2d2d2d 0%, #1f1f1f 100%);
+            padding: 8px;
+        }
+
+        .stat-label {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 9px;
+            line-height: 1.4;
+            color: var(--text-soft);
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-size: 34px;
+            color: var(--accent);
+        }
+
+        .section-title {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 10px;
+            margin: 0 0 8px;
+            color: #fff;
+        }
+
+        .inbox {
+            border: 3px solid #111;
+            background: #171717;
+            min-height: 140px;
+            max-height: 40vh;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .mail {
+            border: 2px solid #000;
+            background: linear-gradient(180deg, #323232 0%, #242424 100%);
+            padding: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+
+        .mail:hover { outline: 2px solid #7ac7ff; }
+
+        .mail-from {
+            color: #89d4ff;
+            font-size: 20px;
+            word-break: break-word;
+        }
+
+        .mail-subject {
+            color: #fff;
+            word-break: break-word;
+        }
+
+        .mail-date {
+            color: var(--text-soft);
+            font-size: 20px;
+        }
+
+        .empty { color: var(--text-soft); }
+
+        #reader {
+            position: fixed;
+            inset: 0;
+            display: none;
+            background: rgba(12, 12, 12, 0.98);
+            z-index: 2000;
+            padding: 10px;
+        }
+
+        .reader-box {
+            width: min(980px, 100%);
+            height: 100%;
+            margin: 0 auto;
+            border: 4px solid #000;
+            background: #191919;
+            box-shadow: 0 0 0 4px #4f4f4f inset;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            gap: 8px;
+        }
+
+        .reader-meta {
+            border: 2px solid #000;
+            background: #111;
+            padding: 8px;
+            color: #d3d3d3;
+            font-size: 21px;
+        }
+
+        .reader-tabs {
+            display: flex;
+            gap: 8px;
+        }
+
+        .tab.active { outline: 2px solid #7ac7ff; }
+
+        #mail-text {
+            flex: 1;
+            border: 2px solid #000;
+            background: #0f0f0f;
+            color: #f5f5f5;
+            padding: 10px;
+            margin: 0;
+            white-space: pre-wrap;
+            overflow: auto;
+            font-size: 23px;
+        }
+
+        #mail-html {
+            flex: 1;
+            border: 2px solid #000;
+            background: #fff;
+            width: 100%;
+            display: none;
+        }
+
+        @media (max-width: 700px) {
+            .buttons { grid-template-columns: 1fr; }
+            .stats { grid-template-columns: 1fr; }
+            .title { font-size: 12px; }
+        }
     </style>
 </head>
 <body>
+<div class="shell">
+    <h1 class="title">ПОЧТОВЫЙ ВЕРСТАК // MINE MAIL</h1>
 
-<div class="session-timer"><div id="progress-fill"></div></div>
-<div class="header">>> SYSTEM.MAIL.TEMP_ADDR <<</div>
-<div id="addr" class="address-box">INITIALIZING...</div>
+    <div class="timer-wrap"><div id="timer-fill"></div></div>
+    <div class="status-line">
+        <span id="time-left">До автосмены: 20:00</span>
+        <span id="sync-status">Синхронизация...</span>
+    </div>
 
-<div class="controls">
-    <button onclick="copyAddr()">[ COPY ]</button>
-    <button class="btn-reset" onclick="resetAddr()">[ RESET ]</button>
-</div>
+    <div id="address" class="address-box">Создание почты...</div>
 
-<div class="inbox-title">
-    <span>>> INBOX_STREAM</span>
-    <span id="sync-time" style="color:#555; font-size:0.6rem;"></span>
-</div>
+    <div class="buttons">
+        <button onclick="copyAddress()">Копировать</button>
+        <button class="btn-accent" onclick="manualRotate()">Новая почта</button>
+        <button class="btn-danger" onclick="resetSession()">Сброс</button>
+    </div>
 
-<div id="loader" class="skeleton-loader"><div class="skeleton-item"></div></div>
-<div id="inbox"></div>
-
-<div id="message-modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <div id="msg-from" style="color:var(--accent-cyan); font-size: 0.7rem;"></div>
-            <div id="msg-subject" style="font-weight:bold; margin-top:5px;"></div>
+    <div class="stats">
+        <div class="stat">
+            <div class="stat-label">Почт создано</div>
+            <div id="stat-mailboxes" class="stat-value">0</div>
         </div>
-        <div id="msg-body"></div>
-        <button onclick="closeMessage()" style="margin-top:20px; border-color:var(--accent-pink); color:var(--accent-pink)">[ CLOSE ]</button>
+        <div class="stat">
+            <div class="stat-label">Писем найдено</div>
+            <div id="stat-total-messages" class="stat-value">0</div>
+        </div>
+        <div class="stat">
+            <div class="stat-label">В текущей почте</div>
+            <div id="stat-current" class="stat-value">0</div>
+        </div>
+        <div class="stat">
+            <div class="stat-label">Прочитано</div>
+            <div id="stat-opened" class="stat-value">0</div>
+        </div>
+    </div>
+
+    <h2 class="section-title">ВХОДЯЩИЕ</h2>
+    <div id="inbox" class="inbox"><div class="empty">Пока писем нет.</div></div>
+</div>
+
+<div id="reader">
+    <div class="reader-box">
+        <div id="reader-meta" class="reader-meta">Загрузка письма...</div>
+        <div class="reader-tabs">
+            <button id="tab-text" class="tab active" onclick="switchView('text')">Текст</button>
+            <button id="tab-html" class="tab" onclick="switchView('html')">HTML</button>
+            <button class="btn-danger" onclick="closeReader()">Закрыть</button>
+        </div>
+        <pre id="mail-text"></pre>
+        <iframe id="mail-html" sandbox></iframe>
     </div>
 </div>
 
 <script>
-    const tg = window.Telegram.WebApp;
-    const userId = tg.initDataUnsafe.user?.id;
-    let lastCount = 0;
-    let timeLeft = 600;
-    tg.expand();
+    const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+    const userId = tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.id
+        ? tg.initDataUnsafe.user.id
+        : 'local-dev-user';
 
-    // Звук (RESTORED)
-    function notify() {
+    if (tg) {
+        tg.expand();
+        tg.ready();
+    }
+
+    const MAIL_LIFETIME_MS = 20 * 60 * 1000;
+    const CHECK_INTERVAL_MS = 15000;
+
+    let expiresAt = Date.now() + MAIL_LIFETIME_MS;
+    let lastMessageCount = 0;
+    let cachedMessages = [];
+    let currentMessage = null;
+
+    function haptic(type, value) {
+        if (!tg || !tg.HapticFeedback) return;
         try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(880, ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.5);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start();
-            osc.stop(ctx.currentTime + 0.5);
-        } catch(e) {}
-        tg.HapticFeedback.notificationOccurred('success');
+            if (type === 'impact') tg.HapticFeedback.impactOccurred(value);
+            if (type === 'notify') tg.HapticFeedback.notificationOccurred(value);
+        } catch (_) {}
     }
 
-    function startTimer() {
-        const fill = document.getElementById('progress-fill');
-        const timer = setInterval(() => {
-            timeLeft--;
-            fill.style.width = (timeLeft / 600) * 100 + '%';
-            if (timeLeft <= 0) {
-                clearInterval(timer);
-                tg.showAlert("Сессия истекла.");
-            }
-        }, 1000);
-    }
-
-    async function init() {
-        if(!userId) return;
-        const res = await fetch('/api/init', {
+    async function api(path, payload) {
+        const response = await fetch(path, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ userId })
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
         });
-        const data = await res.json();
-        document.getElementById('addr').innerText = data.address;
-        check();
+
+        if (response.status === 410) {
+            throw new Error('SESSION_EXPIRED');
+        }
+
+        if (!response.ok) {
+            const body = await response.text();
+            throw new Error(body || 'API_ERROR');
+        }
+
+        const type = response.headers.get('content-type') || '';
+        if (type.includes('application/json')) return response.json();
+        return response.text();
     }
 
-    async function check() {
-        const res = await fetch('/api/check', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ userId })
-        });
-        const data = await res.json();
+    function formatCountdown(ms) {
+        const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+        const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+        const seconds = (totalSeconds % 60).toString().padStart(2, '0');
+        return `${minutes}:${seconds}`;
+    }
+
+    function updateTimerView() {
+        const left = Math.max(0, expiresAt - Date.now());
+        const percent = (left / MAIL_LIFETIME_MS) * 100;
+        document.getElementById('timer-fill').style.width = `${percent}%`;
+        document.getElementById('time-left').textContent = `До автосмены: ${formatCountdown(left)}`;
+    }
+
+    async function initMailbox() {
+        const data = await api('/api/init', { userId });
+        expiresAt = Date.now() + (data.expiresInMs || MAIL_LIFETIME_MS);
+        document.getElementById('address').textContent = data.address;
+        await refreshStats();
+        await checkInbox();
+    }
+
+    async function rotateMailbox(auto = false) {
+        const data = await api('/api/rotate', { userId });
+        expiresAt = Date.now() + (data.expiresInMs || MAIL_LIFETIME_MS);
+        lastMessageCount = 0;
+        cachedMessages = [];
+        renderInbox([]);
+        document.getElementById('address').textContent = data.address;
+        document.getElementById('sync-status').textContent = auto ? 'Почта обновлена автоматически' : 'Почта обновлена вручную';
+        haptic('notify', 'success');
+        await refreshStats();
+    }
+
+    function renderInbox(messages) {
         const inbox = document.getElementById('inbox');
-        document.getElementById('sync-time').innerText = `SYNCED AT [${new Date().toLocaleTimeString()}]`;
-        
-        if (data.length > 0) {
-            if (data.length > lastCount) notify();
-            lastCount = data.length;
+        if (!messages.length) {
+            inbox.innerHTML = '<div class="empty">Пока писем нет.</div>';
+            return;
+        }
 
-            inbox.innerHTML = data.map(m => `
-                <div class="msg-card" onclick="openMessage('${m.id}')">
-                    <div style="color:var(--accent-cyan); font-size:0.7rem;">${m.from.address}</div>
-                    <div style="margin-top:5px; font-size:0.9rem;">${m.subject}</div>
-                </div>
-            `).join('');
+        inbox.innerHTML = messages.map((mail) => {
+            const from = mail.from && mail.from.address ? mail.from.address : 'Неизвестный отправитель';
+            const subject = mail.subject || '(без темы)';
+            const date = mail.createdAt ? new Date(mail.createdAt).toLocaleString('ru-RU') : '';
+            return `<div class="mail" onclick="openMessage('${mail.id}')">
+                        <div class="mail-from">${escapeHtml(from)}</div>
+                        <div class="mail-subject">${escapeHtml(subject)}</div>
+                        <div class="mail-date">${escapeHtml(date)}</div>
+                    </div>`;
+        }).join('');
+    }
+
+    function escapeHtml(value) {
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    async function checkInbox() {
+        try {
+            const list = await api('/api/check', { userId });
+            cachedMessages = Array.isArray(list) ? list : [];
+            renderInbox(cachedMessages);
+            if (cachedMessages.length > lastMessageCount) {
+                haptic('notify', 'success');
+            }
+            lastMessageCount = cachedMessages.length;
+            document.getElementById('sync-status').textContent = `Синхронизировано: ${new Date().toLocaleTimeString('ru-RU')}`;
+            await refreshStats();
+        } catch (error) {
+            if (String(error.message).includes('SESSION_EXPIRED')) {
+                await rotateMailbox(true);
+                return;
+            }
+            document.getElementById('sync-status').textContent = 'Ошибка синхронизации';
         }
     }
 
-    async function openMessage(msgId) {
-        const modal = document.getElementById('message-modal');
-        const body = document.getElementById('msg-body');
-        modal.style.display = 'block';
-        body.innerText = ">> DECRYPTING DATA...";
-        
-        const res = await fetch('/api/message', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ userId, msgId })
-        });
-        const data = await res.json();
-        
-        document.getElementById('msg-from').innerText = `SENDER: ${data.from}`;
-        document.getElementById('msg-subject').innerText = `SUBJECT: ${data.subject}`;
-        body.innerText = data.text;
-        tg.HapticFeedback.impactOccurred('light');
+    async function refreshStats() {
+        try {
+            const data = await api('/api/stats', { userId });
+            document.getElementById('stat-mailboxes').textContent = data.totalMailboxesCreated || 0;
+            document.getElementById('stat-total-messages').textContent = data.totalUniqueMessagesSeen || 0;
+            document.getElementById('stat-current').textContent = data.currentMailboxSeen || 0;
+            document.getElementById('stat-opened').textContent = data.currentMailboxOpened || 0;
+        } catch (_) {}
     }
 
-    function closeMessage() { document.getElementById('message-modal').style.display = 'none'; }
-    
-    function copyAddr() {
-        const text = document.getElementById('addr').innerText;
-        navigator.clipboard.writeText(text);
-        tg.HapticFeedback.impactOccurred('medium');
-        tg.showAlert("Скопировано!");
+    async function openMessage(messageId) {
+        try {
+            const data = await api('/api/message', { userId, msgId: messageId });
+            currentMessage = data;
+            const date = data.date ? new Date(data.date).toLocaleString('ru-RU') : 'дата неизвестна';
+            document.getElementById('reader-meta').textContent = `От: ${data.from || 'неизвестно'} | Тема: ${data.subject || '(без темы)'} | ${date}`;
+            document.getElementById('mail-text').textContent = data.textPlain || data.text || 'Текст письма отсутствует';
+
+            const htmlFrame = document.getElementById('mail-html');
+            htmlFrame.srcdoc = data.html || '<p style="font-family: sans-serif; padding: 12px;">HTML-версия отсутствует.</p>';
+
+            document.getElementById('reader').style.display = 'block';
+            switchView('text');
+            haptic('impact', 'light');
+            await refreshStats();
+        } catch (error) {
+            if (String(error.message).includes('SESSION_EXPIRED')) {
+                await rotateMailbox(true);
+            }
+        }
     }
 
-    async function resetAddr() {
-        await fetch('/api/reset', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ userId })
-        });
-        location.reload();
+    function switchView(mode) {
+        const textEl = document.getElementById('mail-text');
+        const htmlEl = document.getElementById('mail-html');
+        const textTab = document.getElementById('tab-text');
+        const htmlTab = document.getElementById('tab-html');
+
+        if (mode === 'html' && currentMessage && currentMessage.html) {
+            textEl.style.display = 'none';
+            htmlEl.style.display = 'block';
+            textTab.classList.remove('active');
+            htmlTab.classList.add('active');
+            return;
+        }
+
+        textEl.style.display = 'block';
+        htmlEl.style.display = 'none';
+        textTab.classList.add('active');
+        htmlTab.classList.remove('active');
     }
 
-    window.onload = () => {
-        startTimer();
-        init();
-        setInterval(check, 15000);
+    function closeReader() {
+        document.getElementById('reader').style.display = 'none';
+    }
+
+    async function manualRotate() {
+        await rotateMailbox(false);
+    }
+
+    async function resetSession() {
+        await api('/api/reset', { userId });
+        await initMailbox();
+    }
+
+    async function copyAddress() {
+        const text = document.getElementById('address').textContent;
+        try {
+            await navigator.clipboard.writeText(text);
+            haptic('impact', 'medium');
+            if (tg) tg.showAlert('Адрес скопирован');
+        } catch (_) {}
+    }
+
+    setInterval(async () => {
+        updateTimerView();
+        if ((expiresAt - Date.now()) <= 0) {
+            await rotateMailbox(true);
+        }
+    }, 1000);
+
+    setInterval(checkInbox, CHECK_INTERVAL_MS);
+
+    window.onload = async () => {
+        updateTimerView();
+        await initMailbox();
     };
 </script>
 </body>
 </html>
-
