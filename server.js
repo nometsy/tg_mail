@@ -294,9 +294,11 @@ function sendSse(res, event, payload) {
 }
 
 function requireAdmin(req, res, next) {
-    if (!ADMIN_TOKEN) return next();
+    if (!ADMIN_TOKEN) {
+        return res.status(403).json({ error: 'AdminDisabled' });
+    }
 
-    const token = req.get('x-admin-token') || req.query.token || '';
+    const token = req.get('x-admin-token') || '';
     if (token !== ADMIN_TOKEN) {
         return res.status(401).json({ error: 'AdminUnauthorized' });
     }
@@ -588,8 +590,9 @@ app.get('/api/admin/summary', requireAdmin, (req, res) => {
 });
 
 app.get('/admin', (req, res) => {
-    const token = req.query.token ? String(req.query.token) : '';
-    const tokenQuery = token ? `?token=${encodeURIComponent(token)}` : '';
+    if (!ADMIN_TOKEN) {
+        return res.status(403).type('html').send('<h1>Admin panel is disabled: ADMIN_TOKEN is not set</h1>');
+    }
 
     res.type('html').send(`<!DOCTYPE html>
 <html lang="ru">
@@ -611,7 +614,12 @@ button{padding:8px 12px;background:#333;color:#fff;border:1px solid #555;cursor:
 </head>
 <body>
 <h1>MINE MAIL ADMIN</h1>
-<div class="box"><button id="reload">Обновить</button></div>
+<div class="box">
+  <label for="token">ADMIN TOKEN:</label>
+  <input id="token" type="password" style="margin-left:8px;padding:6px;background:#0f0f0f;color:#fff;border:1px solid #555;" />
+  <button id="save">Сохранить токен</button>
+  <button id="reload">Обновить</button>
+</div>
 <div class="box grid">
   <div class="stat">Uptime: <span id="u"></span></div>
   <div class="stat">Active sessions: <span id="a"></span></div>
@@ -621,8 +629,15 @@ button{padding:8px 12px;background:#333;color:#fff;border:1px solid #555;cursor:
 <div class="box"><h3>Последние ротации</h3><table><thead><tr><th>User</th><th>Address</th><th>Created</th><th>Reason</th></tr></thead><tbody id="recent"></tbody></table></div>
 <div class="box"><h3>Топ пользователей</h3><table><thead><tr><th>User</th><th>Mailboxes</th></tr></thead><tbody id="users"></tbody></table></div>
 <script>
+const tokenInput=document.getElementById('token');
+tokenInput.value=localStorage.getItem('admin_token')||'';
+document.getElementById('save').onclick=()=>{
+ localStorage.setItem('admin_token', tokenInput.value || '');
+};
+
 async function load(){
- const r=await fetch('/api/admin/summary${tokenQuery}');
+ const token=localStorage.getItem('admin_token')||'';
+ const r=await fetch('/api/admin/summary',{headers:{'x-admin-token':token}});
  if(!r.ok){document.body.innerHTML='<h1>Access denied</h1>';return;}
  const d=await r.json();
  document.getElementById('u').textContent=d.uptimeSec+'s';
